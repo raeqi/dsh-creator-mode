@@ -33,6 +33,8 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import { CreatorExamples, CreatorMarketSwitch } from './CreatorControls.tsx'
+import type { CreatorExamplesInjected, CreatorMarketInjected } from './CreatorControls.tsx'
 import { AgentPresetLabel } from './AgentPresetLabel.tsx'
 import { CreatePluginMenuItem } from './CreatePluginMenuItem.tsx'
 import type { AgentPresetLabelInjected } from './AgentPresetLabel.tsx'
@@ -242,6 +244,29 @@ export function apply(ctx: ClientContext): void {
         label()
       }
     }, 'ui-agent-preset: new-session chip and header label')
+
+    const creatorPreference = ctx.configForms.get<{ marketFirst: boolean }>('ui-agent-preset')
+    scope.slots.inject('conversation.input.left', () => scope.slots.register({
+      name: 'conversation.input.left', id: 'creator-market-first', order: -100,
+      locale: 'settings.agentPreset',
+      inject: (): CreatorMarketInjected => ({
+        hooks: { creatorPreference },
+        setMarketFirst: enabled => creatorPreference.set('marketFirst', enabled),
+      }),
+    }, CreatorMarketSwitch))
+    scope.slots.inject('conversation.composer.dock', () => scope.slots.register({
+      name: 'conversation.composer.dock', id: 'creator-examples', order: -100,
+      locale: 'settings.agentPreset',
+      inject: (sessionId: SessionId): CreatorExamplesInjected => ({
+        fillDraft: (text) => {
+          const binding = ctx.sessions.binding(sessionId)
+          if (binding === undefined) return
+          const input = scope.conversation.input.for(binding.ctx)
+          input.setDraft(text)
+          input.focus()
+        },
+      }),
+    }, CreatorExamples))
 
     scope.slots.inject('plugins.add.actions', () => scope.slots.register({
       name: 'plugins.add.actions',

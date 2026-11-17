@@ -39,6 +39,10 @@ Entering Creator selects `cordis` for the receiving blank Session without changi
 
 On Desktop, the optional [product analytics](../product-analytics/README.md) service receives `agent_preset_switch` when a direct mode-picker choice moves to a different built-in preset: an unbound choice counts once it is staged for the next Session, and a choice for the bound blank Session counts once the Host applies it. The event carries the source and target categories mapped from the preset id (`cordis` is `creator`; `ptc`, `minimal`, and `standard` keep their ids; any other id is `other`) and the Coding Tools setting known at the choice. Custom targets, refused choices, choices the Host settles on another preset, default changes and their blank-Session synchronization report nothing, and neither does a choice made while the source mode or Coding Tools setting is unknown. Custom preset ids and names are not collected.
 
+## Experimental Creator controls
+
+Creator sessions show four draft-only starting points below the composer and a default-on market-first switch in its tool row. The `ui-agent-preset.marketFirst` Host setting belongs to the profile owner and is shared by authenticated clients of that profile; it affects only Creator requests assembled after the accepted write. Refused writes keep the accepted value and show an error. No new session format or core-loop behavior is introduced.
+
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
@@ -63,15 +67,19 @@ On Desktop, the optional [product analytics](../product-analytics/README.md) ser
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through the selected preset, whose plugins own model-visible capabilities.
+Creator requests include the guidance in [creator-policy.ts](src/creator-policy.ts); the ordinary prompt reconciliation logs that section in `system/message`. Market discovery uses the existing read-only `plugin_market` tool when mounted. Ordinary presets receive no Creator section.
 
 #### KV Cache effect
 
-Selection changes affect only later tasks; existing plugins and prompts remain unchanged.
+Changing the preference changes the next Creator system prompt and may invalidate its cached prefix; no token-saving rate is claimed.
 
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
+
+- Discovery ordering, match explanations, user choices and search budgets are model guidance, not an enforced preflight state machine. The tool is optional and has no default configured index. Real-provider adherence must be evaluated separately.
+- English and Chinese Creator copy is provided; other locales fall back to English for these controls.
+
 
 - Web creates and edits no preset: the configuration viewer is read-only, and a bundle installed through Creator mode declares a new preset or overrides a shipped one by row id, replacing its complete child list.
 

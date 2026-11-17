@@ -24,7 +24,6 @@ import type { AgentPresetSeatInjected } from '../src/client/AgentPresetSeat.tsx'
 import { AgentPresetSeatController } from '../src/client/seat-store.ts'
 import { CreatePluginMenuItem, type CreatePluginMenuItemInjected } from '../src/client/CreatePluginMenuItem.tsx'
 import { AgentPresetSectionController } from '../src/client/section-store.ts'
-import { apply as hostApply } from '../src/index.ts'
 import type { AgentPresetRow } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import { brandString } from '@deepseek-ai/dsh-brand'
 
@@ -213,6 +212,8 @@ function declareConversation(slots: SlotRegistry): () => void {
     children: {
       'conversation.hero.agentPreset': { kind: 'single', scope: 'session-maybe' },
       'conversation.session.header.actions': { kind: 'list', scope: 'session' },
+      'conversation.input.left': { kind: 'list', scope: 'session' },
+      'conversation.composer.dock': { kind: 'list', scope: 'session' },
     },
   } as never, () => null)
 }
@@ -342,10 +343,6 @@ describe('ui-agent-preset apply', () => {
     },
   )
 
-  it('keeps the host Loader entry inert', () => {
-    expect(hostApply).not.toThrow()
-  })
-
   it('declares the services it uses', () => {
     expect(inject).toEqual([
       'slots', 'sessions', 'locale', 'remote', 'remote.agentPresets', 'remote.settings', 'configForms',
@@ -398,6 +395,8 @@ describe('ui-agent-preset apply', () => {
       const feature = ctx.plugin({ inject: [...inject, 'conversation', 'sessions', 'uiWorkspace'], apply })
       await feature.await()
 
+      expect(slots.entries('conversation.input.left').map(entry => entry.options.id)).toEqual(['creator-market-first'])
+      expect(slots.entries('conversation.composer.dock').map(entry => entry.options.id)).toEqual(['creator-examples'])
       const entry = slots.entries('plugins.add.actions')[0]!
       expect(entry.component).toBe(CreatePluginMenuItem)
       const action: Partial<CreatePluginMenuItemInjected> | undefined = entry.inject?.()
@@ -414,6 +413,8 @@ describe('ui-agent-preset apply', () => {
 
       await feature.dispose()
       expect(slots.entries('plugins.add.actions')).toHaveLength(0)
+      expect(slots.entries('conversation.input.left')).toHaveLength(0)
+      expect(slots.entries('conversation.composer.dock')).toHaveLength(0)
     } finally {
       await ctx.fiber.dispose()
     }

@@ -2112,8 +2112,9 @@ describe('strips and variants', () => {
     expect(view.container.querySelector('[class*="hero"]')).not.toBeNull()
   })
 
-  it('renders overlay, left/right, and footer slots at their layout positions', () => {
+  it.each(['hero', 'composer'] as const)('renders overlay, left/right, and footer slots in the %s layout', (variant) => {
     const { view } = bench({
+      variant,
       overlay: <i data-testid="ov" />,
       leftItems: <i data-testid="li" />,
       rightItems: <i data-testid="ri" />,

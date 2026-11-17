@@ -609,6 +609,23 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-account-notifications -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-agent-preset -->
+<a id="deepseek-aidsh-client-ui-agent-preset"></a>
+
+## `@deepseek-ai/dsh-client-ui-agent-preset`
+
+- `refs`: `Volatile` (`@deepseek-ai/cordis`)
+- `source`: [`packages/client/ui-agent-preset/src/index.ts:11`](../packages/client/ui-agent-preset/src/index.ts)
+
+```ts config-catalog
+/** Profile owner's Creator preference, shared by authenticated clients of this Host. */
+export interface Config {
+  /** Prefer existing capabilities and configured indexes before creation; applies only to Creator requests. */
+  marketFirst: Volatile<boolean>
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-agent-preset -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-plugin-manager -->
 <a id="deepseek-aidsh-client-ui-plugin-manager"></a>
 
@@ -5207,7 +5224,6 @@ export interface Config {
 | `@deepseek-ai/dsh-client-script-realm` | — | [`packages/client/script-realm/src/index.ts`](../packages/client/script-realm/src/index.ts) |
 | `@deepseek-ai/dsh-client-script-realm-iframe` | — | [`packages/client/script-realm-iframe/src/index.ts`](../packages/client/script-realm-iframe/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-action-cards` | — | [`packages/experimental/client-ui-action-cards/src/index.ts`](../packages/experimental/client-ui-action-cards/src/index.ts) |
-| `@deepseek-ai/dsh-client-ui-agent-preset` | — | [`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-agent-team` | — | [`packages/client/ui-agent-team/src/index.ts`](../packages/client/ui-agent-team/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-approval` | — | [`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-attachment` | — | [`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts) |

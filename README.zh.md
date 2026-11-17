@@ -1,6 +1,13 @@
-# DeepSeek Harness
+# DSH Creator Mode
 
 [English](README.md) | 中文
+
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的非官方实验衍生项目，独立维护创造模式改进，并非 DeepSeek 官方发行版。保留上游提交历史、MIT [许可证](LICENSE) 及[第三方声明](THIRD_PARTY_NOTICES.md)。功能范围、限制和验证证据见[创造模式运行与验证](CREATOR_MODE.md)。仓库为 `raeqi/dsh-creator-mode`，已获仓库所有者授权公开本次改动；本项目不发布到插件市场。
+
+非官方实验改进：保留 DSH 原聊天与模式入口，增加可编辑启发案例及优先检索开关。检索策略的实现范围与验证边界见[说明](CREATOR_MODE.md)。
+
+## 上游 DeepSeek Harness
+
 
 DeepSeek Harness（`dsh`）是由 [DeepSeek AI](https://deepseek.com) 开发的开源 agent harness（智能体框架）。
 

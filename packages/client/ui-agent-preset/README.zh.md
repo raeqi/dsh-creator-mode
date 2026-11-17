@@ -39,6 +39,10 @@ kind: "package-reference"
 
 在桌面端，模式选择器中的直接选择切换到另一个内置 preset 时，可选的[产品埋点](../product-analytics/README.zh.md)服务会收到 `agent_preset_switch`：未绑定 Session 的选择在暂存给下一个 Session 时计入，已绑定空白 Session 的选择在 Host 应用后计入。事件携带按 preset id 映射的来源与目标类别（`cordis` 记为 `creator`；`ptc`、`minimal`、`standard` 保持原 id；其他 id 记为 `other`），以及选择时已知的代码工作工具设置。选择自定义目标、被拒绝的选择、Host 最终落在其他 preset 的选择、默认值修改及其空白 Session 同步均不报告；来源模式或代码工作工具设置未知时做出的选择同样不报告。不采集自定义 preset 的 id 和名称。
 
+## 实验性创造模式控件
+
+创造会话在输入框下方显示四个只填入草稿的启发案例，在工具行显示默认开启的优先检索开关。Host 设置 `ui-agent-preset.marketFirst` 属于当前配置档的所有者，同一配置档的已认证客户端共享该偏好；只有保存成功后组装的创造模式请求受到影响。保存被拒绝时保留已接受值并显示错误。未新增会话格式或修改核心循环。
+
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
@@ -63,15 +67,19 @@ kind: "package-reference"
 <a id="model-experience"></a>
 ## 模型体验
 
-通过选定的 preset 间接影响模型，其插件拥有模型可见能力。
+创造模式请求包含 [creator-policy.ts](src/creator-policy.ts) 中的策略，原提示词协调流程将该内容记录在 `system/message`。市场检索在工具可用时使用原有只读 `plugin_market`。普通预设不接收创造模式策略。
 
 #### KV Cache effect
 
-选择变更只影响之后的任务，已有插件与提示词保持不变。
+更改偏好会改变下一次创造模式的系统提示，可能使缓存前缀失效；不声称固定 token 节省率。
 
 ## 已知限制与待办
 
 <a id="known-limitations-and-deferred-work"></a>
+
+- 检索顺序、匹配解释、用户选项及查询预算由模型策略引导，尚未实现强制检索状态机；市场工具可选，默认不配置任何索引。真实模型遵循程度需另外验证。
+- 新控件提供中文和英文，其他语言暂回退到英文。
+
 
 - Web 不创建也不编辑 preset：配置查看器是只读的；通过创造模式安装的 bundle 声明新 preset，或按行 id 覆盖内置 preset，覆盖会替换整个子插件列表。
 

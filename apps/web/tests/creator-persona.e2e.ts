@@ -16,7 +16,8 @@ it('sends the Creator customization intent without taking actions for an ordinar
     agentPresets: { default: 'cordis' },
   })
   try {
-    const browser = await chromium.launch()
+    const executablePath = process.env.DSH_PLAYWRIGHT_EXECUTABLE_PATH
+    const browser = await chromium.launch(executablePath === undefined ? {} : { executablePath })
     try {
       const page = await newEnglishPage(browser)
       await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })

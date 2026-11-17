@@ -932,8 +932,8 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     key: 'conversation.composer.dock',
     kind: 'list',
     scope: 'session',
-    summary: 'Ambient entries below the composer card; fixed overlays must portal to the document body because the docked composer contains them.',
-    doc: 'Ambient entries below the composer card; fixed overlays must portal to the document body\nbecause the docked composer contains them.',
+    summary: 'Ambient entries below the hero or active composer card; fixed overlays must portal to the document body because the docked composer contains them.',
+    doc: 'Ambient entries below the hero or active composer card; fixed overlays must portal to the document body\nbecause the docked composer contains them.',
     registerOptions: [
       {
         name: 'id',
@@ -982,6 +982,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'an entry in \'conversation.composer.bar\' (client-ui-conversation), so it exists while that entry is mounted',
     occupants: [
+      'client-ui-agent-preset CreatorExamples id \'creator-examples\'',
       'client-ui-chat ActivityPill id \'activity\'',
       'client-ui-chat UsagePill id \'usage\'',
     ],
@@ -1530,7 +1531,9 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     hookContext: '',
     slotInject: '',
     declaredBy: 'an entry in \'conversation.composer.bar\' (client-ui-conversation), so it exists while that entry is mounted',
-    occupants: [],
+    occupants: [
+      'client-ui-agent-preset CreatorMarketSwitch id \'creator-market-first\'',
+    ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.input.left\', () => ctx.slots.register(\n      { name: \'conversation.input.left\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/client/ui-conversation/src/client/contract/slots.ts:320',

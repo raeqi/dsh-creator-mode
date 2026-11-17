@@ -309,7 +309,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
      */
     'conversation.input.overlay': { kind: 'list'; scope: 'session' }
     /**
-     * Ambient entries below the composer card; fixed overlays must portal to the document body
+     * Ambient entries below the hero or active composer card; fixed overlays must portal to the document body
      * because the docked composer contains them.
      */
     'conversation.composer.dock': { kind: 'list'; scope: 'session' }

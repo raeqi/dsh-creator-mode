@@ -9,6 +9,8 @@
   },
   "include": [
     "snapshots/session/headless.snapshot.ts",
+    "apps/web/tests/creator-controls.e2e.ts",
+    "apps/web/tests/creator-policy.e2e.ts",
     "apps/web/tests/home-whale.e2e.ts",
     "apps/web/tests/sidebar-drawer.e2e.ts",
     "apps/web/tests/creation-recommendations.e2e.ts",
@@ -315,6 +317,7 @@
     { "path": "./packages/client/ui-theme/tsconfig.host.json" },
     { "path": "./packages/client/ui-chat/tsconfig.host.json" },
     { "path": "./packages/client/ui-conversation/tsconfig.host.json" },
+    { "path": "./packages/client/ui-agent-preset/tsconfig.host.json" },
     { "path": "./packages/client/ui-settings/tsconfig.host.json" },
     { "path": "./packages/client/ui-settings-general/tsconfig.host.json" },
 

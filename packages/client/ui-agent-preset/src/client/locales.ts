@@ -5,6 +5,14 @@ import { guideEn, guideJa, guideEs, guideFr, guideDe, guideRu, guidePt, guideZh,
 /** Locale keys these surfaces render. */
 export type AgentPresetSettingsKey =
   | PresetGuideKey
+  | 'creatorMarketLabel'
+  | 'creatorMarketHelp'
+  | 'creatorMarketFailed'
+  | 'creatorExamplesLabel'
+  | 'creatorExampleTool'
+  | 'creatorExampleCapability'
+  | 'creatorExampleMode'
+  | 'creatorExampleService'
   | 'builtInGroup'
   | 'customGroup'
   | 'seatHint'
@@ -36,6 +44,15 @@ export type AgentPresetSettingsKey =
 
 /** English copy. */
 export const en: Record<AgentPresetSettingsKey, string> = {
+  creatorMarketLabel: 'Search first',
+  creatorMarketHelp: 'Check existing capabilities and configured plugin indexes before creating. Search never installs a plugin. Turn off to create directly. Saved for this profile; applies only to Creator mode on the next request.',
+  creatorMarketFailed: 'Could not save. Try again.',
+  creatorExamplesLabel: 'Creator starting points',
+  creatorExampleTool: 'Add a tool beside the conversation',
+  creatorExampleCapability: 'Give DSH another capability',
+  creatorExampleMode: 'Turn a routine workflow into a mode',
+  creatorExampleService: 'Connect a service I use',
+
   ...guideEn,
   builtInGroup: 'Built-in', customGroup: 'Custom',
   sectionIntro: 'Choose the agent’s tools and how it works. Use Standard mode for everyday tasks, or Creator mode to add capabilities to DSH.',
@@ -81,6 +98,15 @@ export const en: Record<AgentPresetSettingsKey, string> = {
 
 /** Simplified Chinese copy. */
 export const zh: Record<AgentPresetSettingsKey, string> = {
+  creatorMarketLabel: '优先检索',
+  creatorMarketHelp: '创造前检查已有能力和已配置的插件索引。搜索不会安装插件；关闭后直接创造。偏好保存在当前配置档，仅在创造模式的下一次请求生效。',
+  creatorMarketFailed: '保存失败，请重试',
+  creatorExamplesLabel: '创造模式启发案例',
+  creatorExampleTool: '在对话旁边加一个工具',
+  creatorExampleCapability: '让 DSH 多一种能力',
+  creatorExampleMode: '把常用做事方式做成一个模式',
+  creatorExampleService: '连接我常用的服务',
+
   ...guideZh,
   builtInGroup: '内置', customGroup: '自定义',
   sectionIntro: '选择 Agent 的工具和工作方式。日常任务用「标准模式」，扩展 DSH 的能力用「创造模式」。',
@@ -128,6 +154,7 @@ export type { PresetDisplaySource, PresetDisplayText } from '@deepseek-ai/dsh-ag
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  ...en,
   ...guideJa,
   'builtInGroup': '組み込み',
   'customGroup': 'カスタム',
@@ -161,6 +188,7 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  ...en,
   ...guideEs,
   builtInGroup: 'Incorporado', customGroup: 'personalizado',
   sectionIntro: 'Elija las herramientas del agente y cómo funciona. Utilice el modo Estándar para las tareas diarias o el modo Creador para agregar capacidades a DSH.',
@@ -206,6 +234,7 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  ...en,
   ...guideFr,
   builtInGroup: 'Intégré', customGroup: 'Personnalisé',
   sectionIntro: 'Choisissez les outils de l’agent et son fonctionnement. Utilisez le mode Standard pour les tâches quotidiennes ou le mode Créateur pour ajouter des fonctionnalités à DSH.',
@@ -251,6 +280,7 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  ...en,
   ...guideDe,
   builtInGroup: 'Eingebaut', customGroup: 'Benutzerdefiniert',
   sectionIntro: 'Wählen Sie die Tools des Agenten und deren Funktionsweise aus. Verwenden Sie den Standardmodus für alltägliche Aufgaben oder den Creator-Modus, um DSH Funktionen hinzuzufügen.',
@@ -296,6 +326,7 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  ...en,
   ...guideRu,
   builtInGroup: 'Встроенный', customGroup: 'Пользовательский',
   sectionIntro: 'Выбирайте инструменты агента и то, как они работают. Используйте стандартный режим для повседневных задач или режим Creator, чтобы расширить возможности DSH.',
@@ -341,6 +372,7 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  ...en,
   ...guidePt,
   builtInGroup: 'Integrado', customGroup: 'Personalizado',
   sectionIntro: 'Escolha as ferramentas do agente e como funciona. Use o modo Padrão para tarefas diárias ou o modo Criador para adicionar recursos ao DSH.',
