@@ -1,0 +1,30 @@
+name: Apply verified Creator mode delivery
+on:
+  push:
+    branches: [master]
+    paths: [.github/workflows/apply-creator-delivery.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.repository == 'raeqi/dsh-creator-mode'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+      - name: Verify baseline, apply exact patch and remove delivery scaffolding
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "39163dd30f703a79079e2d2446545cff3c453738"
+          echo "2e47c7921363012a54ee22e5edf6f6c32f3bccc33d47da4b522d42e2f57af37d  .github/creator-delivery.patch" | sha256sum -c -
+          git apply --check .github/creator-delivery.patch
+          git apply --index .github/creator-delivery.patch
+          git rm .github/creator-delivery.patch .github/workflows/apply-creator-delivery.yml
+          test "$(git write-tree)" = "5d20c252eac409a1bea4ab50e70fbd65174400a2"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat: add Creator inspiration and market-first conversation policy"
+          git push origin HEAD:master
