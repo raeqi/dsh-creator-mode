@@ -7,7 +7,8 @@
   },
   "files": [
     "src/index.ts",
-    "src/creator-policy.ts"
+    "src/creator-policy.ts",
+    "src/creator-workflow.ts"
   ],
   "references": [
     {
@@ -27,6 +28,21 @@
     },
     {
       "path": "../../settings/settings"
+    },
+    {
+      "path": "../../core/tools"
+    },
+    {
+      "path": "../../boot/plugin-market"
+    },
+    {
+      "path": "../../interaction/user-questions"
+    },
+    {
+      "path": "../../session/session-projection"
+    },
+    {
+      "path": "../ui-decision-review/tsconfig.host.json"
     }
   ]
 }

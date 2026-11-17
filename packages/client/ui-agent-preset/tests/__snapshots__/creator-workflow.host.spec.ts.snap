@@ -1,0 +1,93 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`searches only the configured budget, keeps partial failures visible, and offers compatible returned candidates > market candidate decision with partial failure and omitted source 1`] = `
+{
+  "detail": "有来源未能完成搜索
+
+Notes 提供笔记存储；侧栏支持待核查，不能保证完全匹配
+
+来源
+https://market.example/1: 1 · notes
+https://market.example/2: 0 · notes · source offline
+https://market.example/3: 1 · notes
+
+未搜索的来源: https://market.example/4
+
+
+1. Notes (notes-plugin)
+Stored notes
+1.0.0 · 兼容的默认版本
+https://market.example/1",
+  "header": "选择接下来的方式",
+  "id": "creator-path",
+  "intent": {
+    "alternatives": [
+      {
+        "label": "创建新插件",
+        "option": "创建新插件",
+      },
+      {
+        "label": "重新检索",
+        "option": "重新检索",
+      },
+      {
+        "label": "先配置市场",
+        "option": "先配置市场",
+      },
+    ],
+    "cards": [
+      {
+        "actions": [
+          {
+            "label": "基于这个方案继续",
+            "option": "使用 1",
+          },
+          {
+            "label": "改造这个方案",
+            "option": "改造 1",
+          },
+        ],
+        "detail": "Stored notes
+1.0.0 · 兼容的默认版本
+https://market.example/1
+Notes",
+        "facts": [
+          {
+            "label": "能满足什么",
+            "value": "提供笔记存储",
+          },
+          {
+            "label": "缺口与待核实",
+            "value": "侧栏支持待核查",
+          },
+        ],
+        "summary": "",
+        "title": "notes-plugin",
+      },
+    ],
+    "kind": "decision-review",
+    "notice": "选定方向不会安装插件",
+    "summary": "Notes 提供笔记存储；侧栏支持待核查，不能保证完全匹配",
+  },
+  "options": [
+    {
+      "description": "Notes",
+      "label": "使用 1",
+    },
+    {
+      "description": "Notes",
+      "label": "改造 1",
+    },
+    {
+      "label": "创建新插件",
+    },
+    {
+      "label": "重新检索",
+    },
+    {
+      "label": "先配置市场",
+    },
+  ],
+  "question": "哪个方案更适合你的需求？",
+}
+`;

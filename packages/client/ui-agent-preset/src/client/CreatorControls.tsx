@@ -9,7 +9,11 @@ import css from './CreatorControls.module.css'
 
 /** Host-accepted profile preference and its ordered write operation. */
 export interface CreatorMarketInjected {
-  hooks: { creatorPreference: ObservableSnapshot<ConfigFormSnapshot<{ marketFirst: boolean }>> }
+  hooks: {
+    marketSettings: ObservableSnapshot<ConfigFormSnapshot<{ indexes: string[] }>>
+    creatorPreference: ObservableSnapshot<ConfigFormSnapshot<{ marketFirst: boolean }>>
+  }
+  configureMarket: () => void
   setMarketFirst: (enabled: boolean) => Promise<boolean>
 }
 
@@ -26,8 +30,11 @@ type ExamplesProps = PropsRuntime<'conversation.composer.dock'> & PropsLocale<'s
  * @param props - Slot-bound session, settings and locale inputs.
  * @returns Accessible switch and any local write failure.
  */
-export function CreatorMarketSwitch({ sessionId, useSessions, useCreatorPreference, setMarketFirst, t }: MarketProps) {
+export function CreatorMarketSwitch({
+  sessionId, useSessions, useCreatorPreference, useMarketSettings, configureMarket, setMarketFirst, t,
+}: MarketProps) {
   const creator = useSessions(state => state.byId[sessionId]?.projectionValues?.agentPreset === 'cordis')
+  const market = useMarketSettings(value => value)
   const preference = useCreatorPreference(value => value)
   const [saving, setSaving] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -50,6 +57,9 @@ export function CreatorMarketSwitch({ sessionId, useSessions, useCreatorPreferen
         <span aria-hidden className={css.indicator} />{t('creatorMarketLabel')}
       </button>
     </Tooltip>
+    {checked && market.status !== 'loading' && (market.status !== 'ready' || market.value?.indexes.length === 0) && <Tooltip label={t('creatorMarketUnavailable')} side="top" portal>
+      <button type="button" className={css.switch} onClick={configureMarket}>{t('creatorMarketSetup')}</button>
+    </Tooltip>}
     {failed && <span role="status" className={css.error}>{t('creatorMarketFailed')}</span>}
   </span>
 }
@@ -68,6 +78,6 @@ export function CreatorExamples({ sessionId, useSessions, fillDraft, t }: Exampl
   const keys = ['creatorExampleTool', 'creatorExampleCapability', 'creatorExampleMode', 'creatorExampleService'] as const
   return <div className={css.examples} role="group" aria-label={t('creatorExamplesLabel')}>
     {keys.map(key => <button key={key} type="button" className={css.example}
-      onClick={() => { fillDraft(t(key)) }}>{t(key)}</button>)}
+      onClick={() => { fillDraft(t(`${key}Prompt`)) }}>{t(key)}</button>)}
   </div>
 }

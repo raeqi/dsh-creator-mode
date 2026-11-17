@@ -49,6 +49,31 @@ export type AskUserQuestionIntent = {
     detail?: { en: string; [locale: string]: string }
     approve?: { en: string; [locale: string]: string }
   }
+} | DecisionReviewPresentation
+
+/** Structured candidate comparison; actions name the same option labels as the generic fallback. */
+export interface DecisionReviewPresentation {
+  /** Dedicated presentation tag; clients without a renderer retain the generic question. */
+  kind: 'decision-review'
+  /** Short description of the decision and its scope. */
+  summary: string
+  /** Caller-owned permission or next-step notice; presentation grants no permission itself. */
+  notice?: string
+  /** Candidates with their own actions, rather than a separate numbered option list. */
+  cards: {
+    /** Human-readable candidate name, unique within this review. */
+    title: string
+    /** Brief factual description. */
+    summary: string
+    /** Comparison facts such as coverage and unresolved requirements. */
+    facts: { label: string; value: string }[]
+    /** Additional metadata shown only when expanded. */
+    detail?: string
+    /** Option labels shown as this candidate's actions. */
+    actions: { option: string; label: string }[]
+  }[]
+  /** Option labels for paths that do not select a candidate. */
+  alternatives: { option: string; label: string }[]
 }
 
 /** One question in a user-questions request. */

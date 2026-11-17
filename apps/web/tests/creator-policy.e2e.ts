@@ -37,7 +37,7 @@ it.each([
     const start = text.indexOf('Creator mode: prefer configuration, composition, and small adaptations')
     if (preset === 'cordis') {
       expect(start).toBeGreaterThanOrEqual(0)
-      expect(text.includes('first call it with action=list_indexes')).toBe(marketFirst)
+      expect(text.includes('It searches configured sources within its reported limits.')).toBe(marketFirst)
       expect(text.includes('The user turned off market-first discovery.')).toBe(!marketFirst)
       if (marketFirst) {
         const owner = new URL('../../../snapshots/web/creator-persona/system-prompt.expected.md', import.meta.url)

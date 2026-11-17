@@ -6,6 +6,8 @@ Unofficial experimental derivative of [DeepSeek Harness](https://github.com/deep
 
 非官方实验改进：保留 DSH 原聊天与模式入口，增加可编辑启发案例及优先检索开关。检索策略的实现范围与验证边界见 [说明](CREATOR_MODE.md)。
 
+Creator mode currently provides editable example requests, a saved search-first preference, and market setup guidance. Task-specific placement cards and bounded market discovery lead to an explicit reuse, adaptation or creation choice before implementation tools are released. Query quality, comparison and API verification remain model work; the broader market submission/review flow is outside this experiment. See the [requirements coverage](CREATOR_MODE.md#需求覆盖).
+
 ## Upstream DeepSeek Harness
 
 

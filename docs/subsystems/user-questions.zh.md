@@ -60,8 +60,40 @@ type AskUserQuestionIntent = {
     detail?: { en: string; [locale: string]: string }
     approve?: { en: string; [locale: string]: string }
   }
+} | DecisionReviewPresentation
+
+```
+
+## 方案决策卡片
+
+```ts type-equiv
+/** Structured candidate comparison; actions name the same option labels as the generic fallback. */
+interface DecisionReviewPresentation {
+  /** Dedicated presentation tag; clients without a renderer retain the generic question. */
+  kind: 'decision-review'
+  /** Short description of the decision and its scope. */
+  summary: string
+  /** Caller-owned permission or next-step notice; presentation grants no permission itself. */
+  notice?: string
+  /** Candidates with their own actions, rather than a separate numbered option list. */
+  cards: {
+    /** Human-readable candidate name, unique within this review. */
+    title: string
+    /** Brief factual description. */
+    summary: string
+    /** Comparison facts such as coverage and unresolved requirements. */
+    facts: { label: string; value: string }[]
+    /** Additional metadata shown only when expanded. */
+    detail?: string
+    /** Option labels shown as this candidate's actions. */
+    actions: { option: string; label: string }[]
+  }[]
+  /** Option labels for paths that do not select a candidate. */
+  alternatives: { option: string; label: string }[]
 }
 ```
+
+`decision-review` 用结构化候选、比较事实和候选内操作呈现单个方案选择。按钮文案与返回选项值分离，操作完整对应普通问题选项，不授予额外权限；没有专用插件的客户端可以使用普通问题兜底。
 
 ## 问题条目
 
@@ -228,6 +260,23 @@ class UserQuestionError extends HarnessError {
 ## Cordis API
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+
+<a id="ctxdecisionreviews--decisionreviews"></a>
+
+### `ctx.decisionReviews` — `DecisionReviews`
+
+Reuses question cancellation, scope and answer validation without granting installation permission.
+
+```ts cordis-catalog
+/**
+ * Present one comparison and wait for a human choice or custom reply.
+ * @param input - Cards, action labels, generic fallback and request lifetime.
+ * @returns The ordinary question answer; selecting a card grants no additional permissions.
+ */
+ask(input: DecisionReviewRequest): Promise<AskUserQuestionAnswer>
+```
+
+Source: [`packages/client/ui-decision-review/src/index.ts`](../../packages/client/ui-decision-review/src/index.ts)
 
 <a id="ctxuserquestions--userquestionservice"></a>
 

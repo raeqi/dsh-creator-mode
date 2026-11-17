@@ -14,6 +14,7 @@ Choose Agent presets and the new-task default in Web, read what each mode does a
 ## Table of Contents
 
 - [Use this package](#use-this-package)
+- [Experimental Creator controls](#experimental-creator-controls)
 - [Understand the implementation](#understand-the-implementation)
 - [Further Exploration](#further-exploration)
 - [Model Experience](#model-experience)
@@ -39,9 +40,25 @@ Entering Creator selects `cordis` for the receiving blank Session without changi
 
 On Desktop, the optional [product analytics](../product-analytics/README.md) service receives `agent_preset_switch` when a direct mode-picker choice moves to a different built-in preset: an unbound choice counts once it is staged for the next Session, and a choice for the bound blank Session counts once the Host applies it. The event carries the source and target categories mapped from the preset id (`cordis` is `creator`; `ptc`, `minimal`, and `standard` keep their ids; any other id is `other`) and the Coding Tools setting known at the choice. Custom targets, refused choices, choices the Host settles on another preset, default changes and their blank-Session synchronization report nothing, and neither does a choice made while the source mode or Coding Tools setting is unknown. Custom preset ids and names are not collected.
 
+<a id="experimental-creator-controls"></a>
 ## Experimental Creator controls
 
-Creator sessions show four draft-only starting points below the composer and a default-on market-first switch in its tool row. The `ui-agent-preset.marketFirst` Host setting belongs to the profile owner and is shared by authenticated clients of that profile; it affects only Creator requests assembled after the accepted write. Refused writes keep the accepted value and show an error. No new session format or core-loop behavior is introduced.
+Creator mode uses the existing mode picker and conversation. Four starting points appear together below an untouched Creator session's composer. Selecting one inserts an editable example request with a concrete goal and verification requirements; it does not send a message. The examples cover a notes panel, Bilibili search, a code review mode, and GitHub issue access.
+
+The default-on **Search first** switch sits in the composer's tool row; hover shows its explanation. It saves the profile owner's `ui-agent-preset.marketFirst` preference for authenticated clients of that profile and affects Creator requests assembled after a successful write. Refused writes keep the accepted value and show an error. Turning it off requests direct creation without a separate skip action.
+
+Market search requires the optional [Custom plugin indexes bundle](../../experimental/plugin-market-bundle/README.md) and configured index sources. The switch does not enable the bundle or add sources. When market settings are unavailable or contain no sources, **Configure plugin search** opens Plugins; its help directs the user to Experimental plugins and then Discover. This checks saved configuration, not index reachability or successful search.
+
+| Experience | Current implementation |
+| --- | --- |
+| Explain where a requested UI change belongs and what it affects | A task-specific card marks the proposed page, conversation, composer or right-sidebar region and explains its impact; the model must still verify the extension API |
+| Search before creating, explain matches and gaps, then offer reuse, adaptation or creation | `creator_prepare` searches the configured sources; `creator_choose` presents the model’s comparison and asks for reuse, adaptation or creation; implementation tools stay blocked until an accepted decision |
+| Handle unavailable search, missing sources, failed indexes or no matches | Configuration help plus recorded discovery status and source failures; the decision offers retry, configuration or explicit creation without a successful search |
+| Keep the entry lightweight | Existing conversation and mode picker, four simultaneous examples, no carousel or permanent architecture diagram |
+
+Each preparation searches at most `discoverySourceLimit` sources (default 3), searches `discoveryQueryLimit` independent queries per source (default 3), requests `discoveryResultLimit` results per query (default 5), and offers `discoveryCandidateLimit` compatible default-version candidates (default 3). `query` names the primary capability; `alternatives` supplies short synonyms or bilingual keywords. Results are merged by package name and ranked by reciprocal result position across queries. A zero-result multiword query falls back to individual words within the same query budget. Source details record attempted queries and partial failures. `preparationReadTools` permits read-only inspection before the decision; implementation remains blocked. A successful empty search offers retry or creation; configuration is offered only for missing or failed market access. The optional `indexes` tool argument selects configured sources for a user-requested expansion. The Host-only `creatorPreparation` projection restores the current turn’s gate from tool events; replay does not search or ask again. A new turn or admitted user message requires new preparation. Retry, configuration and skipped choices are normal outcomes that keep implementation blocked; configuration and skipping wait for new user input. Turning Search first off permits direct development without a preparation call or another choice. With Search first on, only compatible candidates require a comparison; missing access and empty searches do not force configuration or a second creation decision. Installation authorization is unchanged.
+
+No session format or core-loop behavior is added by these controls.
 
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
@@ -65,9 +82,20 @@ Creator sessions show four draft-only starting points below the composer and a d
 - [Cordis](../../../docs/cordis-primer.md) — Plugin configuration and lifecycle.
 
 <a id="model-experience"></a>
+
+Creator decisions use the dedicated [decision review plugin](../ui-decision-review/README.md): each candidate keeps its coverage, gaps and actions together, with metadata collapsed. `creator_choose.assessments` supplies candidate-specific facts; `comparison` is a one-sentence summary. Successful results retain a read-only decision record in the conversation. Other clients use the readable question fallback.
+
 ## Model Experience
 
-Creator requests include the guidance in [creator-policy.ts](src/creator-policy.ts); the ordinary prompt reconciliation logs that section in `system/message`. Market discovery uses the existing read-only `plugin_market` tool when mounted. Ordinary presets receive no Creator section.
+### Creator preparation
+
+#### What the model sees
+
+The [`creator_prepare` and `creator_choose` tools](../../../docs/tool-catalog.md#deepseek-aidsh-client-ui-agent-preset) return recorded discovery status, source failures, compatible candidates and the user's selected path; installation remains unauthorized. [Creator policy](src/creator-policy.ts) instructs the model to explain coverage and gaps before the decision. Ordinary presets receive neither these tools nor Creator guidance.
+
+#### Token effect
+
+Preparation adds two small tool schemas and bounded discovery output to Creator requests. The model's comparison remains a model request; no token-saving rate is guaranteed.
 
 #### KV Cache effect
 
@@ -77,7 +105,9 @@ Changing the preference changes the next Creator system prompt and may invalidat
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- Discovery ordering, match explanations, user choices and search budgets are model guidance, not an enforced preflight state machine. The tool is optional and has no default configured index. Real-provider adherence must be evaluated separately.
+- Tool execution enforces preparation and a selected path, while query quality, candidate comparisons and API verification remain model work. No default market index is configured.
+- Live-index discovery and the real-model candidate chooser have been verified with a notes request. Candidate installation and reuse have not been verified; a configuration hint alone does not establish successful discovery.
+- Proposed regions are schematic, not live application highlighting. Pending choice dialogs use the existing blocking question flow; after interruption, retry preparation. External floating desktop pets, market categories, submission, private or public distribution, review and revenue sharing are outside this package.
 - English and Chinese Creator copy is provided; other locales fall back to English for these controls.
 
 

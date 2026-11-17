@@ -5,9 +5,22 @@ import { guideEn, guideJa, guideEs, guideFr, guideDe, guideRu, guidePt, guideZh,
 /** Locale keys these surfaces render. */
 export type AgentPresetSettingsKey =
   | PresetGuideKey
+  | 'creatorPreparationLocation'
+  | 'creatorPreparationProposed'
+  | 'creatorPreparationPlacementHelp'
+  | 'creatorRegion_page'
+  | 'creatorRegion_conversation'
+  | 'creatorRegion_composer'
+  | 'creatorRegion_right-sidebar'
   | 'creatorMarketLabel'
   | 'creatorMarketHelp'
   | 'creatorMarketFailed'
+  | 'creatorMarketUnavailable'
+  | 'creatorMarketSetup'
+  | 'creatorExampleToolPrompt'
+  | 'creatorExampleCapabilityPrompt'
+  | 'creatorExampleModePrompt'
+  | 'creatorExampleServicePrompt'
   | 'creatorExamplesLabel'
   | 'creatorExampleTool'
   | 'creatorExampleCapability'
@@ -44,8 +57,21 @@ export type AgentPresetSettingsKey =
 
 /** English copy. */
 export const en: Record<AgentPresetSettingsKey, string> = {
+  'creatorPreparationLocation': 'Proposed interface location',
+  'creatorPreparationProposed': 'proposed',
+  'creatorPreparationPlacementHelp': 'Proposed placement; the implementation must verify the supported extension API.',
+  'creatorRegion_page': 'Application page',
+  'creatorRegion_conversation': 'Conversation view',
+  'creatorRegion_composer': 'Message composer',
+  'creatorRegion_right-sidebar': 'Right sidebar',
   creatorMarketLabel: 'Search first',
-  creatorMarketHelp: 'Check existing capabilities and configured plugin indexes before creating. Search never installs a plugin. Turn off to create directly. Saved for this profile; applies only to Creator mode on the next request.',
+  creatorMarketUnavailable: 'Market search needs configuration. Enable Custom plugin indexes in Plugins → Experimental plugins, then configure a source in Discover.',
+  creatorMarketSetup: 'Configure plugin search',
+  creatorExampleToolPrompt: 'Add a notes panel beside the DSH conversation. Let me create, edit and delete notes, and keep them after reopening the app. First check existing capabilities and supported sidebar extensions; explain what can be reused, then implement the smallest working solution and verify saving and reopening notes.',
+  creatorExampleCapabilityPrompt: 'Give DSH a Bilibili video search tool. I want to search by keyword and receive titles, creators, links and short summaries in the conversation. Check existing plugins and available APIs first, explain any authentication or access limits, then implement and verify a working search without inventing results.',
+  creatorExampleModePrompt: 'Create a reusable code review mode in DSH. It should inspect the diff and relevant callers, prioritize bugs and regression risks, and report each finding with a file location and an explanation. Reuse existing tools, let me select this mode for new conversations, and verify that selecting it applies its instructions.',
+  creatorExampleServicePrompt: 'Connect GitHub to DSH so I can list repository issues and read their details in a conversation. First check existing integrations and explain the required permissions. Keep credentials in the supported credential settings, start with read-only operations, and verify a real request with clear handling of authentication and network errors.',
+  creatorMarketHelp: 'Check existing capabilities before creating. Market search requires Custom plugin indexes to be enabled and an index source configured in Discover; this switch does not enable them. Search never installs a plugin. Turn off to create directly. Saved for this profile; applies only to Creator mode on the next request.',
   creatorMarketFailed: 'Could not save. Try again.',
   creatorExamplesLabel: 'Creator starting points',
   creatorExampleTool: 'Add a tool beside the conversation',
@@ -98,8 +124,21 @@ export const en: Record<AgentPresetSettingsKey, string> = {
 
 /** Simplified Chinese copy. */
 export const zh: Record<AgentPresetSettingsKey, string> = {
+  'creatorPreparationLocation': '拟放置的界面位置',
+  'creatorPreparationProposed': '拟改动',
+  'creatorPreparationPlacementHelp': '此处展示拟定位置，实现时仍需核实支持的扩展 API',
+  'creatorRegion_page': '应用页面',
+  'creatorRegion_conversation': '对话视图',
+  'creatorRegion_composer': '消息输入框',
+  'creatorRegion_right-sidebar': '右侧栏',
   creatorMarketLabel: '优先检索',
-  creatorMarketHelp: '创造前检查已有能力和已配置的插件索引。搜索不会安装插件；关闭后直接创造。偏好保存在当前配置档，仅在创造模式的下一次请求生效。',
+  creatorMarketUnavailable: '市场搜索尚未配置完成，请在“插件 → 实验性插件”开启“自定义插件索引”，再到“发现”配置索引源',
+  creatorMarketSetup: '配置插件搜索',
+  creatorExampleToolPrompt: '帮我在 DSH 对话旁边添加一个笔记面板，可以新建、编辑和删除笔记，重新打开应用后仍保留内容。先检查已有能力和支持的侧栏扩展点，说明可以复用什么，再实现最小可用方案，并验证笔记保存和重新打开的流程。',
+  creatorExampleCapabilityPrompt: '给 DSH 添加一个 B 站视频搜索工具，让我能在对话中按关键词搜索，获得视频标题、UP 主、链接和简短摘要。先检查已有插件和可用 API，说明登录或访问限制，再实现并验证一次真实搜索，不要编造结果。',
+  creatorExampleModePrompt: '帮我在 DSH 创建一个可复用的代码审查模式：检查改动和相关调用方，优先找出缺陷及回归风险，每条发现包含文件位置和原因。复用已有工具，让我在新对话中可以选择这个模式，并验证选择后会应用对应指令。',
+  creatorExampleServicePrompt: '帮我把 GitHub 接入 DSH，让我在对话中列出仓库 Issue 并读取详情。先检查已有集成，说明需要的权限；凭据使用现有凭据设置管理，先实现只读操作，再验证一次真实请求，并清晰处理认证和网络错误。',
+  creatorMarketHelp: '创造前检查已有能力。市场搜索需另行启用“自定义插件索引”，并在“发现”配置索引源；此开关不会自动启用它们。搜索不会安装插件；关闭后直接创造。偏好保存在当前配置档，仅在创造模式的下一次请求生效。',
   creatorMarketFailed: '保存失败，请重试',
   creatorExamplesLabel: '创造模式启发案例',
   creatorExampleTool: '在对话旁边加一个工具',

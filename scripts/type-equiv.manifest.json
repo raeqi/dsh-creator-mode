@@ -2992,6 +2992,11 @@
       "doc": "docs/subsystems/forge.md",
       "symbol": "ForgeAnnotationSource",
       "source": "packages/experimental/client-ui-forge/src/client/changes-service.ts"
+    },
+    {
+      "doc": "docs/subsystems/user-questions.md",
+      "symbol": "DecisionReviewPresentation",
+      "source": "packages/interaction/user-questions/src/types.ts"
     }
   ]
 }

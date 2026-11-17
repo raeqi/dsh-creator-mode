@@ -613,13 +613,23 @@ export interface Config {
 ## `@deepseek-ai/dsh-client-ui-agent-preset`
 
 - `refs`: `Volatile` (`@deepseek-ai/cordis`)
-- `source`: [`packages/client/ui-agent-preset/src/index.ts:11`](../packages/client/ui-agent-preset/src/index.ts)
+- `source`: [`packages/client/ui-agent-preset/src/index.ts:12`](../packages/client/ui-agent-preset/src/index.ts)
 
 ```ts config-catalog
 /** Profile owner's Creator preference, shared by authenticated clients of this Host. */
 export interface Config {
   /** Prefer existing capabilities and configured indexes before creation; applies only to Creator requests. */
   marketFirst: Volatile<boolean>
+  /** Maximum configured sources searched by one preparation. */
+  discoverySourceLimit: number
+  /** Maximum alternative queries searched per source. */
+  discoveryQueryLimit: number
+  /** Maximum results requested from each source and query. */
+  discoveryResultLimit: number
+  /** Maximum compatible candidates offered for comparison. */
+  discoveryCandidateLimit: number
+  /** Read-only tool names allowed before a preparation decision. */
+  preparationReadTools: string[]
 }
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-agent-preset -->
@@ -5232,6 +5242,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@deepseek-ai/dsh-client-ui-conversation` | — | [`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-cordis` | — | [`packages/extensions/ui-cordis/src/index.ts`](../packages/extensions/ui-cordis/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-creation-recommendations` | — | [`packages/experimental/client-ui-creation-recommendations/src/index.ts`](../packages/experimental/client-ui-creation-recommendations/src/index.ts) |
+| `@deepseek-ai/dsh-client-ui-decision-review` | `userQuestions` | [`packages/client/ui-decision-review/src/index.ts`](../packages/client/ui-decision-review/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-deliverables` | `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy` · `workspaceChanges` | [`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-directory-picker-browse` | — | [`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts) |
 | `@deepseek-ai/dsh-client-ui-directory-picker-native` | — | [`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts) |

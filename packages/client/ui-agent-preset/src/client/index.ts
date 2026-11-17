@@ -33,6 +33,8 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import { creatorPlacementDefinition } from './creator-placement.ts'
+import { CreatorPlacementCard } from './CreatorPlacementCard.tsx'
 import { CreatorExamples, CreatorMarketSwitch } from './CreatorControls.tsx'
 import type { CreatorExamplesInjected, CreatorMarketInjected } from './CreatorControls.tsx'
 import { AgentPresetLabel } from './AgentPresetLabel.tsx'
@@ -73,6 +75,13 @@ export const inject = [
  * @param ctx - the browser plugin context.
  */
 export function apply(ctx: ClientContext): void {
+  ctx.inject(['uiConversation'], (child) => {
+    child.effect(() => child.uiConversation.events.register(creatorPlacementDefinition), 'Creator placement cards')
+    child.slots.inject('conversation.chat.node', () => child.slots.register({
+      name: 'conversation.chat.node', key: 'creator-placement', locale: 'settings.agentPreset',
+    }, CreatorPlacementCard))
+  })
+  const marketSettings = ctx.configForms.get<{ indexes: string[] }>('plugin-market')
   const toolsSettings = ctx.configForms.get<{ enabled: boolean }>('ui-settings')
   const presetSettings = ctx.configForms.get(AGENT_PRESET_SETTINGS_NS)
   let active = true
@@ -250,7 +259,8 @@ export function apply(ctx: ClientContext): void {
       name: 'conversation.input.left', id: 'creator-market-first', order: -100,
       locale: 'settings.agentPreset',
       inject: (): CreatorMarketInjected => ({
-        hooks: { creatorPreference },
+        hooks: { creatorPreference, marketSettings },
+        configureMarket: () => { ctx.get('pluginNavigation')?.openList() },
         setMarketFirst: enabled => creatorPreference.set('marketFirst', enabled),
       }),
     }, CreatorMarketSwitch))

@@ -8,7 +8,7 @@
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import LlmRuntime from '@deepseek-ai/dsh-llm'
 import type { ToolSchema } from '@deepseek-ai/dsh-llm'
 import AgentRegistry from '@deepseek-ai/dsh-agent'
@@ -91,8 +91,15 @@ import type { WorkflowRun, WorkflowStartRequest } from '@deepseek-ai/dsh-workflo
 import * as ToolRalph from '@deepseek-ai/dsh-tool-ralph'
 import * as ToolWorkflow from '@deepseek-ai/dsh-tool-workflow'
 import * as ToolWorkspaceDependencies from '@deepseek-ai/dsh-tool-workspace-dependencies'
+import * as CreatorControls from '../packages/client/ui-agent-preset/src/index.ts'
 import { githubSlug } from './verify-md-links.ts'
 import { brandString } from '@deepseek-ai/dsh-brand'
+
+/** Preset identity for cataloguing the Creator-only schemas without starting an Agent. */
+class CatalogCreatorPresets extends Service {
+  constructor(ctx: Context) { super(ctx, 'agentPresets') }
+  presetForSession(): string { return 'cordis' }
+}
 
 /** Attachment seam marker that makes the attachments-conditional `read_image` schema harvestable. */
 class CatalogAttachmentStore extends AttachmentStore {
@@ -219,6 +226,17 @@ const TOOL_PACKAGES: ToolPackage[] = [
       ctx.provide('pluginManager', {} as PluginManager)
       await ctx.plugin(SandboxPolicy)
       await ctx.plugin(PluginManagerTools)
+    },
+  },
+  {
+    pkg: '@deepseek-ai/dsh-client-ui-agent-preset',
+    dir: 'ui-agent-preset',
+    source: 'packages/client/ui-agent-preset/src/creator-workflow.ts',
+    requires: ['ctx.tools', 'ctx.sessionProjections', 'ctx.agentPresets', 'ctx.userQuestions (decision)', 'ctx.pluginMarket (optional discovery)'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(CatalogCreatorPresets)
+      await ctx.plugin(CreatorControls)
     },
   },
   {

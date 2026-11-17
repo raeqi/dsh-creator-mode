@@ -997,6 +997,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'decisionReviews',
+    summary: 'Reuses question cancellation, scope and answer validation without granting installation permission.',
+    description: 'Reuses question cancellation, scope and answer validation without granting installation permission.',
+    methods: [
+      {
+        signature: 'ask(input: DecisionReviewRequest): Promise<AskUserQuestionAnswer>',
+        description: 'Present one comparison and wait for a human choice or custom reply.',
+        parameters: [{ name: 'input', description: 'Cards, action labels, generic fallback and request lifetime.' }],
+        returns: 'The ordinary question answer; selecting a card grants no additional permissions.',
+      },
+    ],
+  },
+  {
     key: 'deepseekAccount',
     summary: 'Account login, credentials, and client-safe Remote operations.',
     description: 'Account login, credentials, and client-safe Remote operations.',
@@ -6088,7 +6101,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'AskUserQuestionIntent',
-    declaration: 'export type AskUserQuestionIntent = {\n    kind: \'plan-review\';\n    approve: string;\n    callId?: ToolCallId;\n} | {\n    kind: \'approval\';\n    approve: string;\n    reject: string;\n    always?: string;\n    subject?: {\n        name: string;\n        icon?: string;\n    };\n    display?: {\n        question: {\n            en: string;\n            [locale: string]: string;\n        };\n        detail?: {\n            en: string;\n            [locale: string]: string;\n        };\n        approve?: {\n            en: string;\n            [locale: string]: string;\n        };\n    };\n};',
+    declaration: 'export type AskUserQuestionIntent = {\n    kind: \'plan-review\';\n    approve: string;\n    callId?: ToolCallId;\n} | {\n    kind: \'approval\';\n    approve: string;\n    reject: string;\n    always?: string;\n    subject?: {\n        name: string;\n        icon?: string;\n    };\n    display?: {\n        question: {\n            en: string;\n            [locale: string]: string;\n        };\n        detail?: {\n            en: string;\n            [locale: string]: string;\n        };\n        approve?: {\n            en: string;\n            [locale: string]: string;\n        };\n    };\n} | DecisionReviewPresentation;',
   },
   {
     name: 'AskUserQuestionItem',
@@ -6669,6 +6682,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DailyScheduleRecord',
     declaration: 'export interface DailyScheduleRecord {\n    readonly id: ScheduleId;\n    readonly kind: \'daily\';\n    readonly title: string;\n    readonly prompt: string;\n    readonly time: string;\n    readonly timeZone: string;\n    readonly scheduledAt: string;\n}',
+  },
+  {
+    name: 'DecisionReviewPresentation',
+    declaration: 'export interface DecisionReviewPresentation {\n    kind: \'decision-review\';\n    summary: string;\n    notice?: string;\n    cards: {\n        title: string;\n        summary: string;\n        facts: {\n            label: string;\n            value: string;\n        }[];\n        detail?: string;\n        actions: {\n            option: string;\n            label: string;\n        }[];\n    }[];\n    alternatives: {\n        option: string;\n        label: string;\n    }[];\n}',
+  },
+  {
+    name: 'DecisionReviewRequest',
+    declaration: 'export interface DecisionReviewRequest {\n    request: Omit<AskUserQuestionRequest, \'questions\' | \'wait\'>;\n    id: string;\n    question: string;\n    presentation: DecisionReviewPresentation;\n    fallback: string;\n}',
   },
   {
     name: 'DeepSeekLlmApiExtensionMap',

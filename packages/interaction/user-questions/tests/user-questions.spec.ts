@@ -959,3 +959,22 @@ describe('fixed approval presentation', () => {
     expect(p.seen).toEqual([])
   })
 })
+
+describe('structured decision presentation', () => {
+  it('retains candidate-local actions and rejects an unoffered action before opening a wait', async () => {
+    const ctx = new Context()
+    onTestFinished(() => ctx.fiber.dispose())
+    await ctx.plugin(UserQuestionService)
+    const p = provider('use-notes')
+    registerAnswerer(ctx, p)
+    const question = { id: 'direction', question: 'Choose a direction', detail: 'Notes can save text', options: [{ label: 'use-notes' }],
+      intent: { kind: 'decision-review' as const, summary: 'One candidate', cards: [{ title: 'Notes', summary: 'Saves text', facts: [],
+        actions: [{ option: 'use-notes', label: 'Continue with this option' }] }], alternatives: [] } }
+    expect(await ctx.userQuestions.ask({ questions: [question] })).toMatchObject({ answers: [{ selected: ['use-notes'] }] })
+    expect(p.seen[0]?.questions[0]?.intent).toEqual(question.intent)
+    await expect(ctx.userQuestions.ask({ questions: [{ ...question, options: [{ label: 'different' }] }] })).rejects.toMatchObject({ code: 'BAD_INTENT' })
+    await expect(ctx.userQuestions.ask({ questions: [{ ...question, multiSelect: true }] })).rejects.toMatchObject({ code: 'BAD_INTENT' })
+    await expect(ctx.userQuestions.ask({ questions: [question], wait: { callId: brandString<ToolCallId>('timed-decision'), timed: true } })).rejects.toMatchObject({ code: 'BAD_INTENT' })
+    expect(p.seen).toHaveLength(1)
+  })
+})

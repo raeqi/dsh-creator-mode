@@ -23,21 +23,26 @@ it('fills each editable example through a callback without a submit capability',
     '在对话旁边加一个工具', '让 DSH 多一种能力', '把常用做事方式做成一个模式', '连接我常用的服务',
   ])
   for (const button of buttons) fireEvent.click(button)
-  expect(fillDraft.mock.calls.map(call => call[0])).toEqual(buttons.map(button => button.textContent))
+  expect(fillDraft.mock.calls.map(call => call[0])).toEqual([
+    zh.creatorExampleToolPrompt, zh.creatorExampleCapabilityPrompt, zh.creatorExampleModePrompt, zh.creatorExampleServicePrompt,
+  ])
   act(() => { state.set({ byId: { s1: { blank: true, projectionValues: { agentPreset: 'standard' } } } }) })
   expect(screen.queryByRole('group')).toBeNull()
   act(() => { state.set({ byId: { s1: { blank: false, projectionValues: { agentPreset: 'cordis' } } } }) })
   expect(screen.queryByRole('group')).toBeNull()
 })
 
-function switchFixture(write = vi.fn(() => Promise.resolve(true))) {
+function switchFixture(write = vi.fn(() => Promise.resolve(true)), available = true) {
+  const market = createSnapshotStore<ConfigFormSnapshot<{ indexes: string[] }>>({ status: available ? 'ready' : 'unavailable', value: available ? { indexes: ['https://example.com/index.json'] } : undefined, base: {}, user: {}, revision: 0, writable: true })
+  const configureMarket = vi.fn()
   const state = sessions()
   const preference = createSnapshotStore<ConfigFormSnapshot<{ marketFirst: boolean }>>({
     status: 'ready', value: { marketFirst: true }, base: {}, user: {}, revision: 0, writable: true,
   })
   render(<CreatorMarketSwitch {...({ sessionId: 's1', useSessions: bindSnapshotSelector(state),
+    useMarketSettings: bindSnapshotSelector(market), configureMarket,
     useCreatorPreference: bindSnapshotSelector(preference), setMarketFirst: write, t } as Parameters<typeof CreatorMarketSwitch>[0])} />)
-  return { state, preference, write }
+  return { state, preference, write, market, configureMarket }
 }
 
 it('shows a default-on accessible switch, keeps accepted state during a pending write, and hides outside Creator', async () => {
@@ -74,4 +79,17 @@ it('disables unknown or read-only settings rather than accepting a local-only pr
   expect(screen.getByRole('switch').hasAttribute('disabled')).toBe(true)
   fireEvent.click(screen.getByRole('switch'))
   expect(b.write).not.toHaveBeenCalled()
+})
+
+it('offers market setup while the market service is absent and removes it when mounted', () => {
+  const b = switchFixture(undefined, false)
+  fireEvent.click(screen.getByRole('button', { name: '配置插件搜索' }))
+  expect(b.configureMarket).toHaveBeenCalledOnce()
+  expect(b.write).not.toHaveBeenCalled()
+  act(() => { b.market.set({ ...b.market.getSnapshot(), status: 'ready', value: { indexes: ['https://example.com/index.json'] } }) })
+  expect(screen.queryByRole('button', { name: '配置插件搜索' })).toBeNull()
+  act(() => { b.market.set({ ...b.market.getSnapshot(), status: 'ready', value: { indexes: [] } }) })
+  expect(screen.getByRole('button', { name: '配置插件搜索' })).toBeTruthy()
+  act(() => { b.preference.set({ ...b.preference.getSnapshot(), value: { marketFirst: false } }) })
+  expect(screen.queryByRole('button', { name: '配置插件搜索' })).toBeNull()
 })

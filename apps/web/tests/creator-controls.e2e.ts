@@ -41,9 +41,11 @@ it.each([true, false])('uses the accepted market-first=%s preference in the real
         'Add a tool beside the conversation', 'Give DSH another capability',
         'Turn a routine workflow into a mode', 'Connect a service I use',
       ]
-      for (const label of labels) {
+      const promptsByLabel = ['Add a notes panel', 'Give DSH a Bilibili video search tool', 'Create a reusable code review mode', 'Connect GitHub to DSH']
+      for (const [index, label] of labels.entries()) {
         await examples.getByRole('button', { name: label, exact: true }).click()
-        expect(await composer.innerText()).toBe(label)
+        expect(await composer.innerText()).toContain(promptsByLabel[index])
+        expect((await composer.innerText()).length).toBeGreaterThan(200)
       }
       expect(scaffold.ctx.agents.list().flatMap(agent => agent.session.snapshotEvents())
         .filter(event => event.type === 'user/message')).toEqual([])
@@ -75,7 +77,7 @@ it.each([true, false])('uses the accepted market-first=%s preference in the real
       const system = agent.session.deriveMessages().find(message => message.role === 'system')
       const prompt = system?.content.flatMap(block => block.type === 'text' ? [block.text] : []).join('') ?? ''
       expect(prompt).toContain('Creator mode: prefer configuration, composition, and small adaptations')
-      expect(prompt.includes('first call it with action=list_indexes')).toBe(marketFirst)
+      expect(prompt.includes('It searches configured sources within its reported limits.')).toBe(marketFirst)
       expect(prompt.includes('The user turned off market-first discovery.')).toBe(!marketFirst)
       expect(agent.session.snapshotEvents().filter(event => event.type === 'tool/call')).toEqual([])
       await page.getByText('READY', { exact: true }).waitFor()

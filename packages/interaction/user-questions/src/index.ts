@@ -303,6 +303,17 @@ export class UserQuestionService extends TypertRemoteService {
     for (const question of request.questions) {
       const intent = question.intent
       if (intent === undefined) continue
+      if (intent.kind === 'decision-review') {
+        const labels = [...intent.cards.flatMap(card => card.actions), ...intent.alternatives].map(action => action.option)
+        const options = question.options ?? []
+        if (request.questions.length !== 1 || question.multiSelect === true || request.wait !== undefined || labels.length === 0
+          || labels.some(label => label.trim() === '' || !options.some(option => option.label === label))
+          || options.length !== labels.length || new Set(labels).size !== labels.length
+          || new Set(intent.cards.map(card => card.title)).size !== intent.cards.length) {
+          throw new UserQuestionError('decision review requires one blocking single-select question with distinct cards and complete action labels', 'BAD_INTENT')
+        }
+        continue
+      }
       const labels = intent.kind === 'approval'
         ? [intent.approve, intent.reject, ...intent.always === undefined ? [] : [intent.always]]
         : [intent.approve]
