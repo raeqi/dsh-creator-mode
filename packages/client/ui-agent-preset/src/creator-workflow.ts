@@ -18,10 +18,11 @@ const candidateSchema = z.object({
   name: z.string(), title: z.string(), description: z.string(), source: z.string(), target: z.string(),
   version: z.string(), installation: z.string(), registry: z.string().optional(),
 })
-const discoverySchema = z.object({ query: z.string(), language: z.enum(['en', 'zh']), status: z.enum(['disabled', 'unavailable', 'unconfigured', 'partial-or-failed', 'no-compatible-matches', 'no-matches', 'matches']), reason: z.string(),
+const discoverySchema = z.object({ query: z.string(), language: z.enum(['en', 'zh']), status: z.enum(['disabled', 'not-searched', 'unavailable', 'unconfigured', 'partial-or-failed', 'no-compatible-matches', 'no-matches', 'matches']), reason: z.string(),
   sources: z.array(z.object({ url: z.string(), error: z.string().optional(),
     matches: z.number(), queries: z.array(z.string()).optional() })),
-  omitted: z.array(z.string()), candidates: z.array(candidateSchema), nextAction: z.enum(['choose', 'implement']),
+  omitted: z.array(z.string()), candidates: z.array(candidateSchema), nextAction: z.enum(['choose', 'implement', 'wait-for-user', 'preview']),
+  placementChoice: z.object({ status: z.enum(['chosen', 'cancelled', 'preview']), region: z.string().optional(), label: z.string().optional(), slots: z.array(z.string()).optional() }).optional(),
   preview: z.object({ outcome: z.string(), usage: z.string() }).optional(),
   location: z.string().optional(), impact: z.string().optional() })
 const choiceSchema = z.object({ decision: z.enum(['create', 'use', 'adapt']), installationAuthorized: z.literal(false) })
@@ -106,8 +107,14 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
       return { reason: state.continuation === 'skipped' ? t.skipped : state.continuation === 'configure' ? t.configurePending : t.retryPending,
         info: { name: 'CreatorPreparationError', code: 'CREATOR_WAITING_FOR_USER' } }
     }
-    if (exec.name === TOOL || exec.name === 'creator_choose') return
-    if (state.discovery?.preview !== undefined && (state.ready || !config.marketFirst.get())) return
+    if (exec.name === TOOL) return
+    if (state.discovery?.nextAction === 'wait-for-user' || state.discovery?.nextAction === 'preview') {
+      return { reason: 'The layout is unconfirmed. Stop and wait for the user; call creator_prepare only when they request a new preparation.',
+        info: { name: 'CreatorPreparationError', code: 'CREATOR_WAITING_FOR_PLACEMENT' } }
+    }
+    if (exec.name === 'creator_choose') return
+    if (state.discovery?.preview !== undefined && (state.ready || (!config.marketFirst.get()
+      && state.discovery.nextAction === 'choose' && state.discovery.placementChoice?.status !== 'cancelled'))) return
     if (config.preparationReadTools.includes(exec.name)) return
     if (exec.name === 'plugin_manager' && typeof exec.arguments === 'object' && exec.arguments !== null
       && 'action' in exec.arguments && ['list_plugins', 'list_bundles'].includes(String(exec.arguments.action))) return
@@ -125,9 +132,10 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
 
   ctx.tools.register(defineTool({
     name: TOOL,
-    description: 'Show an inline design preview before implementing a new Creator design: expected effect, usage, and proposed placement for UI changes. This preview is required even with Search first off and does not ask for confirmation. With Search first on, also search configured plugin indexes; follow nextAction to compare candidates or implement directly. Does not install plugins.',
+    description: 'Prepare the expected effect and usage before implementing a new Creator design. Visible UI additions inspect live extension locations and PAUSE until the user confirms a complete layout in the placement panel, including with Search first off. Respect the returned selected region and slots. A cancelled or preview-only preparation does not authorize implementation. With Search first on, also search configured plugin indexes; follow nextAction to compare candidates or implement directly. Does not install plugins.',
     parameters: {
-      outcome: { type: 'string', required: true, description: 'In the user’s language, briefly describe the finished capability and expected output. State access or persistence limits relevant to its use.' },
+      previewOnly: { type: 'boolean', description: 'Set true only when the user explicitly requests a read-only preview without choosing or implementing. Return the preview then stop. Omit during normal plugin development, which waits for a UI placement decision.' },
+      outcome: { type: 'string', required: true, description: 'In the user’s language, briefly describe the finished capability and expected output. For UI requests, describe behavior without fixing the location before the human chooses it. State access or persistence limits relevant to its use.' },
       usage: { type: 'string', required: true, description: 'In the user’s language, explain where to start and one concrete interaction, e.g. ask “搜索 B 站的 Vue 教程” to receive video links in the conversation.' },
       query: { type: 'string', required: true, description: 'Primary capability keyword, e.g. notes. Avoid combining implementation requirements into one query.' },
       alternatives: { type: 'array', items: { type: 'string' }, description: `Alternative short queries, including synonyms and the user’s language, e.g. 笔记 and 便签. Search independently and merge results; at most ${config.discoveryQueryLimit - 1} alternatives.` },
@@ -137,15 +145,27 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
       impact: { type: 'string', description: 'For UI requests, explain the user-visible change and affected neighbors in the user’s language.' },
     },
     output: { schema: { type: 'string' }, render: (_args, value) => {
-      const parsed = JSON.parse(value) as { extensionMap?: { slots: { recommended: boolean }[] }; [key: string]: unknown }
+      const parsed = JSON.parse(value) as { extensionMap?: import('@deepseek-ai/dsh-client-ui-extension-map').ExtensionMap
+        placementChoice?: import('@deepseek-ai/dsh-client-ui-extension-map').PlacementChoice
+        [key: string]: unknown }
       if (parsed.extensionMap === undefined) return [{ type: 'text', text: value }]
       const { extensionMap, ...preparation } = parsed
-      return [{ type: 'text', text: JSON.stringify({ ...preparation, uiPlacement: { ...extensionMap,
-        slots: extensionMap.slots.filter(slot => slot.recommended), slotCount: extensionMap.slots.length,
-        guidance: 'Full inventory is displayed in the interactive map. Inspect the exact recommended Slots roots for props and owner APIs before writing code. A declaration is not proof of current visibility.' } }) }]
+      const choice = preparation.placementChoice
+      const selected = choice?.slots ?? []
+      return [{ type: 'text', text: JSON.stringify({ ...preparation, uiPlacement: {
+        slots: extensionMap.slots.filter(slot => selected.includes(slot.name)).map((slot) => {
+          const { occupants: _occupants, ...declaration } = slot
+          return declaration
+        }),
+        guidance: 'Use these declarations only for a chosen placement; without a choice, stop. Inspect exact slot props and owner APIs before coding. Keyed slots require a new unique key; never replace occupied keys. Neighboring occupants do not establish capability reuse. In the final user reply, use the chosen display label, not slot identifiers or field names; do not repeat the plan.' } }) }]
+
     }, presentationMeta: (_args, value) => {
-      const parsed = JSON.parse(value) as { extensionMap?: import('@deepseek-ai/dsh-util-values').JsonValue }
-      return parsed.extensionMap === undefined ? {} : { extensionMap: parsed.extensionMap }
+      const parsed = JSON.parse(value) as {
+        extensionMap?: import('@deepseek-ai/dsh-util-values').JsonValue
+        placementChoice?: import('@deepseek-ai/dsh-util-values').JsonValue
+      }
+      return parsed.extensionMap === undefined ? {} : { extensionMap: parsed.extensionMap,
+        ...parsed.placementChoice === undefined ? {} : { placementChoice: parsed.placementChoice } }
     } },
     async execute(args, exec) {
       const signal = AbortSignal.any([exec.signal, lifetime.signal])
@@ -164,7 +184,17 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
         throw new ToolContextUnavailableError('The UI extension map plugin is required for interface placement. Enable ui-extension-map and reconnect a DSH page; no UI support has been verified.')
       }
       const extensionMap = args.location === undefined ? undefined : await mapper?.inspect(args.location, { ...exec, signal })
+      const placementChoice = mapper === undefined || extensionMap === undefined ? undefined : args.previewOnly === true
+        ? { status: 'preview' as const } : await mapper.review(extensionMap, args, { ...exec, signal })
+      signal.throwIfAborted()
       const t = copy[args.language]
+      if (args.previewOnly === true || placementChoice?.status === 'cancelled') {
+        return JSON.stringify({ query: args.query, language: args.language, status: 'not-searched',
+          reason: args.previewOnly === true ? t.previewOnly : t.waitPlacement, sources: [], omitted: [], candidates: [],
+          preview: { outcome: args.outcome, usage: args.usage }, nextAction: args.previewOnly === true ? 'preview' : 'wait-for-user',
+          ...extensionMap === undefined ? {} : { extensionMap }, ...placementChoice === undefined ? {} : { placementChoice },
+          ...args.location === undefined ? {} : { location: args.location, impact: args.impact } })
+      }
       const marketFirst = config.marketFirst.get()
       const market = ctx.get('pluginMarket')
       const sources: { url: string; error?: string; matches: number; queries?: string[] }[] = []
@@ -231,8 +261,9 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
         : status === 'partial-or-failed' ? t.unknown : status === 'no-matches' ? t.none : status === 'no-compatible-matches' ? t.incompatible : t.choice
       return JSON.stringify({ query: args.query, queries, language: args.language, status, reason, sources, omitted, candidates: shown,
         preview: { outcome: args.outcome, usage: args.usage }, nextAction: marketFirst && shown.length > 0 ? 'choose' : 'implement',
+        ...placementChoice === undefined ? {} : { placementChoice },
         ...extensionMap === undefined ? {} : { extensionMap },
-        ...args.location === undefined ? {} : { location: args.location, impact: args.impact ?? '' } })
+        ...args.location === undefined ? {} : { location: placementChoice?.region ?? args.location, impact: args.impact ?? '' } })
     },
     presentCall: args => ({ card: 'generic', title: args.language === 'zh' ? '准备创造方案' : 'Prepare Creator request', kind: 'read', rawInput: args }),
   }), { when: ({ agent }) => creator(agent.session) })
@@ -333,7 +364,9 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
 
   const previews = new Map<Agent, { dispose: () => void; hasMap: boolean }>()
   const refreshPreview = (agent: Agent): void => {
-    const required = creator(agent.session) && projection.stateOf(agent.session).discovery?.preview === undefined
+    const discovery = projection.stateOf(agent.session).discovery
+    const required = creator(agent.session) && (discovery?.preview === undefined
+      || discovery.nextAction === 'wait-for-user' || discovery.nextAction === 'preview')
     if (required) {
       const hasMap = ctx.tools.schemas().some(tool => tool.name === 'ui_extension_map')
       const current = previews.get(agent)

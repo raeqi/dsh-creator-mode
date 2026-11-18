@@ -1,14 +1,11 @@
 /** Interactive spatial browsing with explicit, editable location feedback. */
 import { useState } from 'react'
-import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ExtensionMapKind } from './record.ts'
 import type { ExtensionRegion, ExtensionSlot } from '../model.ts'
 import type { MapKey } from './locales.ts'
 import css from './ExtensionMapCard.module.css'
 
-/** Draft-only location feedback; no action submits a message. */
-export interface MapInjected { quoteLocation: (text: string) => void }
 const regions = ['page', 'left-sidebar', 'header', 'conversation', 'composer', 'right-sidebar', 'settings', 'plugins'] as const
 const labels: Readonly<Record<string, MapKey>> = {
   'root': 'slot_root',
@@ -130,45 +127,25 @@ const labels: Readonly<Record<string, MapKey>> = {
   'conversation.chat.user.images': 'slot_conversation.chat.user.images',
 }
 
-/** @param props - Recorded map, locale and session-scoped draft callback. @returns A compact map with expandable inventory. */
-export function ExtensionMapCard({ node, t, quoteLocation }: PropsRuntime<'conversation.chat.node', ExtensionMapKind> & PropsLocale<'extensionMap'> & InjectFace<MapInjected>) {
-  const map = node.data
+/** @param props - Recorded inspection or confirmed placement. @returns A concise outcome with an optional read-only inventory. */
+export function ExtensionMapCard({ node, t }: PropsRuntime<'conversation.chat.node', ExtensionMapKind> & PropsLocale<'extensionMap'>) {
+  const { map, choice } = node.data
   const [region, setRegion] = useState<ExtensionRegion>(map.region)
-  const [browsing, setBrowsing] = useState(map.region === 'overview' || !map.slots.some(slot => slot.recommended))
-  const recommended = map.slots.filter(slot => slot.recommended)
-  const visible = browsing ? map.slots.filter(slot => region === 'overview' || slot.region === region) : recommended
   const label = (slot: ExtensionSlot): string => { const key = labels[slot.name]; return key === undefined ? slot.name : t(key) }
-  return <section className={css.card} aria-label={t('title')}>
-    <h3>{t('title')}</h3><p className={css.muted}>{t('snapshot')}</p>
-    {map.issues.length > 0 && <div role="status" className={css.warning}>{t('missing')}<details><summary>{t('technical')}</summary>
-      {map.issues.map((issue, index) => <p key={`${issue.source}:${index}`}>{issue.source}: {issue.message}</p>)}</details></div>}
-    {map.omitted > 0 && <p className={css.warning}>{t('omitted')}: {map.omitted}</p>}
+  if (choice?.status === 'chosen') return <section className={css.card} aria-label={t('chosen')}>
+    <span className={css.muted}>{t('chosen')} · </span>{choice.label ?? (choice.region === undefined ? '' : t(choice.region))}
+  </section>
+  return <details className={css.card}><summary>{t('browse')}</summary>
+    {map.issues.length > 0 && <p role="status">{t('missing')}</p>}
     <div className={css.map} role="group" aria-label={t('explore')}>
       {regions.map(item => <button type="button" key={item} className={css.region} data-region={item}
-        aria-pressed={region === item} onClick={() => { setRegion(item); setBrowsing(true) }}>
-        {t(item)} <span>{map.slots.filter(slot => slot.region === item).length}</span>
-      </button>)}
+        aria-pressed={region === item} onClick={() => { setRegion(item) }}>{t(item)}</button>)}
     </div>
-    <div className={css.heading}><span>{t(browsing ? 'explore' : 'recommended')}{browsing && ` · ${t(region)}`}</span>
-      <Button size="sm" variant="ghost" onClick={() => { setRegion(browsing ? map.region : 'overview'); setBrowsing(!browsing) }}>{t(browsing ? 'recommended' : 'all')}</Button></div>
-    <div className={css.list} data-browsing={browsing}>
-      {visible.length === 0 && <p className={css.muted}>{t('empty')}</p>}
-      {visible.map(slot => <article className={css.slot} key={slot.name}>
-        <div className={css.heading}><span>{label(slot)}</span><span className={css.muted}>{t(slot.kind)}</span></div>
-        <p className={slot.risk === 'none' ? css.muted : css.warning}>{t(slot.risk)}</p>
-        {slot.kind === 'keyed' && <p className={css.muted}>{t('keyedHelp')}</p>}
-        <details><summary>{t('technical')}</summary><code>{slot.name}</code><p>{slot.purpose}</p><p>{t('scope')}: {slot.scope}</p>
-          <p>{t('occupants')}: {slot.occupants === null ? t('unknown') : slot.occupants.length === 0 ? t('noOccupants') : slot.occupants.join(', ')}</p></details>
-        <Button size="sm" variant="outline" onClick={() => { quoteLocation(`${t('choice')}${label(slot)} (${slot.name})${t('choiceSuffix')}`) }}>{t('choose')}</Button>
+    <div className={css.list}>
+      {map.slots.filter(slot => region === 'overview' || slot.region === region).map(slot => <article className={css.slot} key={slot.name}>
+        <span>{label(slot)}</span><details><summary>{t('technical')}</summary>
+          <code>{slot.name}</code><p>{slot.purpose}</p><p>{t(slot.risk)}</p></details>
       </article>)}
     </div>
-    <p className={css.muted}>{t('draftHelp')}</p>
-    <details className={css.capabilities}><summary>{t('capabilities')}</summary>
-      <p>{t('tokens')}: {map.theme.length}</p><div className={css.tokens}>{map.theme.map(token => <code key={token}>{token}</code>)}</div>
-      {map.config.map(config => <p key={config.name}><code>{config.name}</code>: {config.status === 'absent' ? t('configAbsent') : config.status}
-        {config.fields.length > 0 && ` · ${config.fields.join(', ')}`}</p>)}
-      <p>{t('factories')}: {map.factories}</p>
-      <p>{t('limits')}</p><p>{t('inspectHelp')}</p>
-    </details>
-  </section>
+  </details>
 }

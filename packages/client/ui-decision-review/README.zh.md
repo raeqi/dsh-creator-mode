@@ -27,6 +27,8 @@ kind: "package-reference"
 
 调用方可以在成功的已记录工具结果中附带 `decisionReview` 对象，包含 `title`、`choice`、`summary`、`custom` 四个字符串。客户端仅为显式注册的原生工具调用重建决策记录，任意工具输出不能生成决策卡片。默认注册创造模式的选择工具；其他客户端集成可从本包 `/client` 导出注册 `createDecisionRecordDefinition(toolName)`，并在 `dsh.client.external` 声明该模块。回放不发起请求，也不执行操作。
 
+候选渲染器在 `conversation.question.presentation` 下注册 `decision-review`，由提问所有者管理待答载体和提交状态。其他插件可通过 `intent.view.renderer` 与 JSON `data` 提供自己的 keyed 展示，同时保留普通答案选项。
+
 <a id="dev-note"></a>
 ## 开发备注
 

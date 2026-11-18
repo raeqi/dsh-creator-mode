@@ -6,6 +6,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
 import { brandString } from '@deepseek-ai/dsh-brand'
+import { useState } from 'react'
 import { PendingQuestion } from '@deepseek-ai/dsh-client-ui-user-questions/client'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { DecisionReviewPresentation } from '@deepseek-ai/dsh-user-questions/types'
@@ -24,10 +25,22 @@ function fixture() {
   pending.attachWaterfall({ resolve: () => {}, reject: () => {}, delegate: () => {}, deadline: undefined })
   const answer = vi.spyOn(pending, 'answer')
   const store = createSnapshotStore<{ notes: Record<string, string> }>({ notes: {} })
-  const props = { matched: { pending, presentation }, t: key => zh[key as keyof typeof zh] ?? key, useStore: bindSnapshotSelector(store),
-    actions: { set: (_key: string, value: string) => { store.set({ notes: { [pending.key]: value } }) }, prune: () => {} } } as Pick<Parameters<typeof DecisionPanel>[0], 'matched' | 't' | 'useStore' | 'actions'>
-  const view = render(<DecisionPanel {...props as Parameters<typeof DecisionPanel>[0]} />)
-  return { pending, answer, view, props, note: () => store.getSnapshot().notes[pending.key] }
+  const props = { requestKey: pending.key, question: pending.questions[0]!, liveKeys: [pending.key], recorded: undefined,
+    t: (key: string) => zh[key as keyof typeof zh] ?? key, useStore: bindSnapshotSelector(store),
+    actions: { set: (_key: string, value: string) => { store.set({ notes: { [pending.key]: value } }) }, prune: () => {} } }
+  function Owner() {
+    const [busy, setBusy] = useState(false)
+    const [failed, setFailed] = useState(false)
+    return <DecisionPanel {...props as Parameters<typeof DecisionPanel>[0]} busy={busy} disabled={busy} failed={failed}
+      answer={async (selected, custom) => {
+        setBusy(true); setFailed(false)
+        try { await pending.answer({ answers: [{ id: 'path', selected, ...custom === undefined ? {} : { custom } }] }); return true }
+        catch { setFailed(true); return false }
+        finally { setBusy(false) }
+      }} />
+  }
+  const view = render(<Owner />)
+  return { pending, answer, view, props, Owner, note: () => store.getSnapshot().notes[pending.key] }
 }
 
 it('submits the exact action of the clicked candidate without a numbered option list', async () => {
@@ -46,7 +59,7 @@ it('keeps requirements on failure, disables duplicate submissions and permits re
   const f = fixture()
   fireEvent.click(screen.getByText('补充需求或换个方向'))
   fireEvent.change(screen.getByRole('textbox'), { target: { value: '只要右侧栏，别自动注入提示词' } })
-  f.view.rerender(<DecisionPanel {...f.props as Parameters<typeof DecisionPanel>[0]} />)
+  f.view.rerender(<f.Owner />)
   const gate = Promise.withResolvers<undefined>()
   f.answer.mockReturnValueOnce(gate.promise)
   fireEvent.click(screen.getByRole('button', { name: '发送补充需求' }))

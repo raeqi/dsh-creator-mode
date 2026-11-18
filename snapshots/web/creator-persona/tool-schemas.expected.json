@@ -2,13 +2,17 @@
   "initial": [
     {
       "name": "creator_prepare",
-      "description": "Show an inline design preview before implementing a new Creator design: expected effect, usage, and proposed placement for UI changes. This preview is required even with Search first off and does not ask for confirmation. With Search first on, also search configured plugin indexes; follow nextAction to compare candidates or implement directly. Does not install plugins.",
+      "description": "Prepare the expected effect and usage before implementing a new Creator design. Visible UI additions inspect live extension locations and PAUSE until the user confirms a complete layout in the placement panel, including with Search first off. Respect the returned selected region and slots. A cancelled or preview-only preparation does not authorize implementation. With Search first on, also search configured plugin indexes; follow nextAction to compare candidates or implement directly. Does not install plugins.",
       "parameters": {
         "type": "object",
         "properties": {
+          "previewOnly": {
+            "type": "boolean",
+            "description": "Set true only when the user explicitly requests a read-only preview without choosing or implementing. Return the preview then stop. Omit during normal plugin development, which waits for a UI placement decision."
+          },
           "outcome": {
             "type": "string",
-            "description": "In the user’s language, briefly describe the finished capability and expected output. State access or persistence limits relevant to its use."
+            "description": "In the user’s language, briefly describe the finished capability and expected output. For UI requests, describe behavior without fixing the location before the human chooses it. State access or persistence limits relevant to its use."
           },
           "usage": {
             "type": "string",

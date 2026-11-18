@@ -215,15 +215,19 @@
 
 ### `creator_prepare`
 
-实现新的创造设计前，在对话内展示预期效果、使用方式，以及 UI 改动的拟定位置。关闭优先检索时也必须预览，但不要求确认。开启优先检索时另行搜索已配置的插件索引，按 nextAction 比较候选或直接实现。此工具不安装插件。
+实现新的创造设计前，准备预期效果与使用方式。显性界面新增会检查真实扩展位置，暂停等待用户在位置面板确认完整布局，关闭优先检索时也一样。遵循返回的位置和展位；取消或仅预览不授权开发。开启优先检索时另行搜索已配置索引，根据 nextAction 比较候选或开发，不安装插件。
 
 ```json
 {
   "type": "object",
   "properties": {
+    "previewOnly": {
+      "type": "boolean",
+      "description": "Set true only when the user explicitly requests a read-only preview without choosing or implementing. Return the preview then stop. Omit during normal plugin development, which waits for a UI placement decision."
+    },
     "outcome": {
       "type": "string",
-      "description": "In the user’s language, briefly describe the finished capability and expected output. State access or persistence limits relevant to its use."
+      "description": "In the user’s language, briefly describe the finished capability and expected output. For UI requests, describe behavior without fixing the location before the human chooses it. State access or persistence limits relevant to its use."
     },
     "usage": {
       "type": "string",

@@ -34,8 +34,6 @@ import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 import type {} from '@deepseek-ai/dsh-client-ui-extension-map/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import { creatorPlacementDefinition } from './creator-placement.ts'
-import { CreatorPlacementCard } from './CreatorPlacementCard.tsx'
 import { CreatorExamples, CreatorMarketSwitch } from './CreatorControls.tsx'
 import type { CreatorExamplesInjected, CreatorMarketInjected } from './CreatorControls.tsx'
 import { AgentPresetLabel } from './AgentPresetLabel.tsx'
@@ -78,12 +76,6 @@ export const inject = [
 export function apply(ctx: ClientContext): void {
   ctx.inject(['uiExtensionMap'], (child) => {
     child.effect(() => child.uiExtensionMap.registerProducer('creator_prepare'), 'Creator runtime placement maps')
-  })
-  ctx.inject(['uiConversation'], (child) => {
-    child.effect(() => child.uiConversation.events.register(creatorPlacementDefinition), 'Creator placement cards')
-    child.slots.inject('conversation.chat.node', () => child.slots.register({
-      name: 'conversation.chat.node', key: 'creator-placement', locale: 'settings.agentPreset',
-    }, CreatorPlacementCard))
   })
   const marketSettings = ctx.configForms.get<{ indexes: string[] }>('plugin-market')
   const toolsSettings = ctx.configForms.get<{ enabled: boolean }>('ui-settings')

@@ -640,7 +640,7 @@ export interface Config {
 ## `@deepseek-ai/dsh-client-ui-extension-map`
 
 - `inject`: `cordisInspect` · `tools`
-- `source`: [`packages/client/ui-extension-map/src/index.ts:21`](../packages/client/ui-extension-map/src/index.ts)
+- `source`: [`packages/client/ui-extension-map/src/index.ts:23`](../packages/client/ui-extension-map/src/index.ts)
 
 ```ts config-catalog
 /** Profile bounds on inventory size and detailed inspections. */

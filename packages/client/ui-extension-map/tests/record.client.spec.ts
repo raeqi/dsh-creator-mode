@@ -31,7 +31,7 @@ function replay(definition: ConversationNodeDefinition, events: SessionEvent[]) 
 it('replays a registered map and keeps the waiting phase empty without throwing', () => {
   const definition = mapDefinition('ui_extension_map')
   expect(replay(definition, [call('ui_extension_map')])).toEqual([])
-  expect(replay(definition, [call('ui_extension_map'), result({ extensionMap: record })])).toMatchObject([{ data: record }])
+  expect(replay(definition, [call('ui_extension_map'), result({ extensionMap: record })])).toMatchObject([{ data: { map: record } }])
 })
 
 it('ignores unregistered or malformed map-looking results', () => {
@@ -39,4 +39,15 @@ it('ignores unregistered or malformed map-looking results', () => {
   expect(replay(definition, [call('web_fetch'), result({ extensionMap: record })])).toEqual([])
   expect(replay(definition, [call('ui_extension_map'), result({ extensionMap: { version: 123 } })])).toEqual([])
   expect(replay(definition, [call('ui_extension_map'), result({ extensionMap: record }, true)])).toEqual([])
+})
+
+
+it('records only a chosen layout, with no transcript card for cancelled or preview-only preparation', () => {
+  const definition = mapDefinition('creator_prepare')
+  for (const status of ['cancelled', 'preview']) {
+    expect(replay(definition, [call('creator_prepare'), result({ extensionMap: record, placementChoice: { status } })])).toEqual([])
+  }
+  expect(replay(definition, [call('creator_prepare'), result({ extensionMap: record,
+    placementChoice: { status: 'chosen', region: 'page', label: 'Separate page', slots: ['main', 'sidebar.panellist'] } })]))
+    .toMatchObject([{ data: { choice: { status: 'chosen', region: 'page' } } }])
 })

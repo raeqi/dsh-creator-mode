@@ -6,7 +6,7 @@ Unofficial experimental derivative of [DeepSeek Harness](https://github.com/deep
 
 非官方实验改进：保留 DSH 原聊天与模式入口，增加可编辑启发案例及优先检索开关。检索策略的实现范围与验证边界见 [说明](CREATOR_MODE.md)。
 
-Creator mode currently provides editable example requests, a saved search-first preference, and market setup guidance. Every new design shows its expected effect and usage before implementation, including UI placement when relevant. Search first controls optional market discovery only; with it off, creation proceeds after the preview without a candidate question. The independent [interface extension map plugin](packages/client/ui-extension-map/README.md) reads runtime Slots, Theme and relevant Config schemas for visible additions, offers placement suggestions, and can quote a position into the draft without a mandatory question. Query quality, comparison and exact API verification remain model work; the broader market submission/review flow is outside this experiment. See the [requirements coverage](CREATOR_MODE.md#需求覆盖).
+Creator mode provides editable example requests, optional market discovery and a dedicated [interface placement plugin](packages/client/ui-extension-map/README.md). A visible feature pauses before implementation so the user can choose its layout directly in a compact canvas and confirm; it does not require a typed reply. Search first controls market discovery only. With it off, placement still waits for confirmation while market candidates are skipped. Completed choices leave a short outcome, with technical inventories folded. Exact API support and workflow suitability remain model verification work; market submission/review is outside this experiment. See [requirements coverage](CREATOR_MODE.md#需求覆盖).
 
 ## Upstream DeepSeek Harness
 

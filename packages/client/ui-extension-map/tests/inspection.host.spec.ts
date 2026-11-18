@@ -8,7 +8,7 @@ import type { SessionId } from '@deepseek-ai/dsh-session'
 import type { ToolCallId } from '@deepseek-ai/dsh-llm'
 import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 import * as plugin from '../src/index.ts'
-import { inventoryFrom, recommend } from '../src/model.ts'
+import { inventoryFrom, recommend, placementLayouts } from '../src/model.ts'
 
 const node = (name: string, kind = 'list', replaceRisk = 'none') => ({ type: 'slot', name, kind,
   scope: 'session', purpose: `${name} extension`, replaceRisk })
@@ -103,4 +103,23 @@ it('aborts in-flight discovery when its plugin is unloaded', async () => {
   await f.owner.dispose()
   expect(await running).toMatchObject({ isError: true })
   expect(f.ctx.get('extensionMap')).toBeUndefined()
+})
+
+
+it('offers complete additive layouts and never treats a panel body as an alternative to its entry', () => {
+  const map = inventoryFrom(tree, 'right-sidebar', 512)
+  expect(placementLayouts(map)).toContainEqual({ region: 'right-sidebar', slots: ['sidebar.right.pane.tab', 'conversation.session.header.utilities'] })
+  const missingEntry = { ...map, slots: map.slots.filter(slot => slot.name !== 'conversation.session.header.utilities') }
+  expect(placementLayouts(missingEntry).some(layout => layout.region === 'right-sidebar')).toBe(false)
+  const replacement = { ...map, slots: map.slots.map(slot => ({ ...slot, kind: 'single' as const, risk: 'shadows-shipped-ui' as const })) }
+  expect(placementLayouts(replacement)).toEqual([])
+})
+
+
+it('keeps new keyed page and conversation renderers available despite occupied-key replacement warnings', () => {
+  const map = inventoryFrom({ trees: [node('main', 'keyed', 'shadows-shipped-ui'), node('sidebar.panellist'),
+    node('conversation.chat.node', 'keyed', 'shadows-shipped-ui')] }, 'page', 512)
+  expect(placementLayouts(map)).toEqual([
+    { region: 'conversation', slots: ['conversation.chat.node'] }, { region: 'page', slots: ['main', 'sidebar.panellist'] },
+  ])
 })

@@ -7535,6 +7535,12 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+      "@deepseek-ai/dsh-user-questions":
+        specifier: workspace:*
+        version: link:../../interaction/user-questions
+      "@deepseek-ai/dsh-client-ui-user-questions":
+        specifier: workspace:*
+        version: link:../ui-user-questions
 
   packages/client/ui-user-questions:
     devDependencies:
@@ -14370,6 +14376,9 @@ importers:
       '@deepseek-ai/dsh-typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol
+      "@deepseek-ai/dsh-util-values":
+        specifier: workspace:*
+        version: link:../../util/values
 
   packages/jobs/jobs:
     devDependencies:

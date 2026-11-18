@@ -38,10 +38,7 @@
         "@deepseek-ai/dsh-client-ui-chat",
         "@deepseek-ai/dsh-client-ui-user-questions"
       ],
-      "platform": "web",
-      "external": [
-        "@deepseek-ai/dsh-client-ui-user-questions/client"
-      ]
+      "platform": "web"
     }
   },
   "scripts": {

@@ -34,10 +34,7 @@ it('renders candidate-local actions instead of a numbered radio list and keeps t
       agent.session.append('turn/start', { turn: 2 })
       agent.session.append('tool/call', { turn: 2, step: 1, callId: brandString<ToolCallId>('preview'), name: 'creator_prepare',
         arguments: JSON.stringify({ query: 'notes', language: 'en', outcome: 'A local notes panel', usage: 'Open Notes and create a note', location: 'right-sidebar', impact: 'Adds a right-sidebar tab' }) })
-      const preview = page.getByRole('region', { name: 'What you will get', exact: true })
-      await preview.waitFor({ state: 'visible' })
-      expect(await preview.getByText('Open Notes and create a note').isVisible()).toBe(true)
-      expect(await preview.evaluate(element => getComputedStyle(element).fontSize)).toBe('13px')
+      expect(await page.getByRole('region', { name: 'What you will get', exact: true }).count()).toBe(0)
       const answer = scaffold.ctx.decisionReviews.ask({ id: 'review', request: { agent }, question: 'Which option fits?',
         fallback: 'Notes stores text; sidebar placement is unverified.', presentation: { kind: 'decision-review', summary: 'Two candidates',
           cards: ['Notes', 'Sticky notes'].map((title, index) => ({ title, summary: '',

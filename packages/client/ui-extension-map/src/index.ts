@@ -1,12 +1,14 @@
-/** Read-only runtime placement discovery, independent of Creator mode and plugin markets. */
+/** Runtime placement discovery and blocking layout decisions, independent of plugin markets. */
 import { Service, type Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { z as parse } from 'zod'
 import type {} from '@deepseek-ai/dsh-cordis-host-runner'
 import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type {} from '@deepseek-ai/dsh-user-questions'
 import { defineTool, ToolContextUnavailableError, type ToolExecution } from '@deepseek-ai/dsh-tools'
-import { inventoryFrom, recommend, regionSchema, type ExtensionMap, type ExtensionRegion } from './model.ts'
-export type { ExtensionMap, ExtensionRegion, ExtensionSlot } from './model.ts'
+import { inventoryFrom, recommend, regionSchema, placementLayouts, type ExtensionMap, type ExtensionRegion, type PlacementChoice } from './model.ts'
+import { reviewCopy } from './locales.ts'
+export type { ExtensionMap, ExtensionRegion, ExtensionSlot, PlacementChoice } from './model.ts'
 
 /** Top-level object alternatives expose editable fields; nested definitions are not configuration keys. */
 function configFields(value: JsonValue): string[] {
@@ -41,6 +43,39 @@ export class ExtensionMapService extends Service {
   constructor(ctx: Context, private readonly limits: Config) {
     super(ctx, 'extensionMap')
     ctx.effect(() => () => { this.lifetime.abort(new ToolContextUnavailableError('Extension map was unloaded')) }, 'Extension map reads')
+  }
+
+  /**
+   * Pause the caller until a human confirms a layout or defers it.
+   * @param map - Inspected declarations used to form complete layout alternatives.
+   * @param design - Short capability description, usage and preferred language.
+   * @param exec - Requesting Agent and cancellation lifetime.
+   * @returns The exact human-selected layout; deferral never approves implementation.
+   */
+  async review(map: ExtensionMap, design: { outcome: string; usage: string; language: 'en' | 'zh' }, exec: ToolExecution): Promise<PlacementChoice> {
+    if (exec.agent === undefined) throw new ToolContextUnavailableError('Placement decisions require an Agent')
+    const t = reviewCopy[design.language]
+    const descriptions = { 'right-sidebar': t.rightDescription, conversation: t.conversationDescription,
+      page: t.pageDescription, composer: t.composerDescription, header: t.headerDescription,
+      'left-sidebar': t.leftDescription, settings: t.settingsDescription, plugins: t.pluginsDescription }
+    const options = placementLayouts(map).map(layout => ({ ...layout, label: t[layout.region],
+      description: descriptions[layout.region], option: t[layout.region] }))
+    if (options.length === 0) throw new ToolContextUnavailableError(
+      `No complete placement was verified. Reconnect the DSH page and inspect its slots before continuing. ${map.issues.map(issue => `${issue.source}: ${issue.message}`).join('; ')}`,
+    )
+    const questions = this.ctx.get('userQuestions')
+    if (questions === undefined) throw new ToolContextUnavailableError('User questions are unavailable; no placement was confirmed')
+    const answer = await questions.ask({ agent: exec.agent,
+      signal: AbortSignal.any([exec.signal, this.lifetime.signal]), questions: [{ id: 'ui-placement', question: t.title,
+        options: [...options.map(option => ({ label: option.option, description: option.description })), { label: t.cancel }],
+        intent: { kind: 'decision-review', summary: design.outcome, cards: [],
+          alternatives: [...options.map(option => ({ label: option.label, option: option.option })), { label: t.cancel, option: t.cancel }],
+          view: { renderer: 'ui-placement', data: { ...design, options,
+            ...options.some(option => option.region === map.region) ? { recommended: map.region } : {} } } },
+      }] })
+    const selected = answer.answers.find(item => item.id === 'ui-placement')?.selected[0]
+    const choice = options.find(option => option.option === selected)
+    return choice === undefined ? { status: 'cancelled' } : { status: 'chosen', region: choice.region, label: choice.label, slots: choice.slots }
   }
 
   /**

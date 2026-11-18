@@ -20,10 +20,14 @@
     },
     {
       "path": "../../util/values"
+    },
+    {
+      "path": "../../interaction/user-questions"
     }
   ],
   "files": [
     "src/index.ts",
-    "src/model.ts"
+    "src/model.ts",
+    "src/locales.ts"
   ]
 }

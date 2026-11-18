@@ -1,0 +1,51 @@
+{
+  "query": "todo",
+  "queries": [
+    "todo"
+  ],
+  "language": "en",
+  "status": "disabled",
+  "reason": "Search first is off; market discovery was not performed.",
+  "sources": [],
+  "omitted": [],
+  "candidates": [],
+  "preview": {
+    "outcome": "Create, complete and filter tasks",
+    "usage": "Add a task, then check it off"
+  },
+  "nextAction": "implement",
+  "placementChoice": {
+    "status": "chosen",
+    "region": "page",
+    "label": "Separate page",
+    "slots": [
+      "main",
+      "sidebar.panellist"
+    ]
+  },
+  "location": "page",
+  "impact": "Adds a panel tab and opening entry",
+  "uiPlacement": {
+    "slots": [
+      {
+        "name": "main",
+        "kind": "keyed",
+        "scope": "root",
+        "purpose": "Central panel selected by sidebar entry id.",
+        "risk": "shadows-shipped-ui",
+        "region": "page",
+        "recommended": false
+      },
+      {
+        "name": "sidebar.panellist",
+        "kind": "list",
+        "scope": "root",
+        "purpose": "Global panel icons.",
+        "risk": "none",
+        "region": "left-sidebar",
+        "recommended": false
+      }
+    ],
+    "guidance": "Use these declarations only for a chosen placement; without a choice, stop. Inspect exact slot props and owner APIs before coding. Keyed slots require a new unique key; never replace occupied keys. Neighboring occupants do not establish capability reuse. In the final user reply, use the chosen display label, not slot identifiers or field names; do not repeat the plan."
+  }
+}

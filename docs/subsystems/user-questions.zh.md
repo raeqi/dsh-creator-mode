@@ -90,6 +90,8 @@ interface DecisionReviewPresentation {
   }[]
   /** Option labels for paths that do not select a candidate. */
   alternatives: { option: string; label: string }[]
+  /** Optional plugin-owned rendering data; ordinary options remain the fallback and answer vocabulary. */
+  view?: { renderer: string; data: JsonValue }
 }
 ```
 

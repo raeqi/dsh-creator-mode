@@ -1057,6 +1057,7 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   DecisionReviewRequest: 'packages/client/ui-decision-review/README.md',
+  PlacementChoice: 'ui-extension-map placement outcome — packages/client/ui-extension-map/README.md owns the API',
   ExtensionMap: 'packages/client/ui-extension-map/README.md',
   ExtensionRegion: 'packages/client/ui-extension-map/README.md',
   ActionCardDecision: 'packages/experimental/action-cards/README.md',

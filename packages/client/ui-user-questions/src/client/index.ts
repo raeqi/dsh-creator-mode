@@ -35,7 +35,7 @@ import { en, ja, es, fr, de, ru, pt, zh, type QuestionKey } from './locales.ts'
 export { PendingQuestion } from './contract/slots.ts'
 
 export type {
-  PlanReview, QuestionAnswer, QuestionComposerProps, QuestionWait,
+  PlanReview, QuestionAnswer, QuestionComposerProps, QuestionWait, QuestionPresentation,
 } from './contract/slots.ts'
 export type { QuestionKey } from './locales.ts'
 
@@ -389,7 +389,8 @@ export function apply(ctx: ClientContext): void {
       locale: NS,
       store: questionDraftStore,
       inject: () => ({ keyedHooks: { questionCard: (key: string) => cards.source(key) } }),
-      children: { 'conversation.plan-review.actions': { kind: 'list', scope: 'session' } },
+      children: { 'conversation.plan-review.actions': { kind: 'list', scope: 'session' },
+        'conversation.question.presentation': { kind: 'keyed', scope: 'session' } },
     },
     QuestionComposer,
   ))

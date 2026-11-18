@@ -3,6 +3,7 @@
 import type { Scoped } from '@deepseek-ai/dsh-scope'
 import type { Agent } from '@deepseek-ai/dsh-agent/types'
 import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 import type {} from '@deepseek-ai/dsh-session/types'
 import type {} from '@deepseek-ai/dsh-session-projection/types'
 
@@ -74,6 +75,8 @@ export interface DecisionReviewPresentation {
   }[]
   /** Option labels for paths that do not select a candidate. */
   alternatives: { option: string; label: string }[]
+  /** Optional plugin-owned rendering data; ordinary options remain the fallback and answer vocabulary. */
+  view?: { renderer: string; data: JsonValue }
 }
 
 /** One question in a user-questions request. */

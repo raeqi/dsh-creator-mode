@@ -135,6 +135,15 @@ Reads the same provider registry and methods used by cordis_inspect_list/query.
 
 ```ts cordis-catalog
 /**
+ * Pause the caller until a human confirms a layout or defers it.
+ * @param map - Inspected declarations used to form complete layout alternatives.
+ * @param design - Short capability description, usage and preferred language.
+ * @param exec - Requesting Agent and cancellation lifetime.
+ * @returns The exact human-selected layout; deferral never approves implementation.
+ */
+async review(map: ExtensionMap, design: { outcome: string; usage: string; language: 'en' | 'zh' }, exec: ToolExecution): Promise<PlacementChoice>
+
+/**
  * Capture declared Slots and public Theme/Config capabilities without running or installing a plugin.
  * @param region - Requested region, or overview for the whole document.
  * @param exec - Agent scope and cancellation lifetime of the recorded tool call.

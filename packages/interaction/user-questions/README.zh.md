@@ -70,3 +70,5 @@ kind: "package-reference"
 **运行时不变式：** `userQuestions` projection 由已记录的工具调用、PTC 子调用和准入的用户消息推导，不存储单独的问题状态。已继续的问题可以创建新的用户轮次，但不能恢复已结束的工具调用。
 
 `decision-review` 用候选卡片组合比较事实与操作，操作完整覆盖问题选项，并分别声明按钮文案与返回选项值。专用客户端插件为 `dsh-client-ui-decision-review`；选定方案不授予额外权限。
+
+可选的 `decision-review.view` 包含插件渲染键和 JSON 数据。Client 通过 `conversation.question.presentation` 分发，专用渲染不可用时回退普通选项。此数据不授予权限，也不改变选项校验。

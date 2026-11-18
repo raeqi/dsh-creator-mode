@@ -2,11 +2,10 @@
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type { Context } from '@deepseek-ai/cordis'
-import { PendingQuestion } from '@deepseek-ai/dsh-client-ui-user-questions/client'
-import type { ComposerChainProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-client-ui-user-questions/client'
 import { createDecisionRecordDefinition } from './record.ts'
 import { DecisionRecord } from './DecisionRecord.tsx'
-import { DecisionPanel, type DecisionMatch } from './DecisionPanel.tsx'
+import { DecisionPanel } from './DecisionPanel.tsx'
 import { createDecisionDrafts } from './drafts.ts'
 import { en, zh, type DecisionKey } from './locales.ts'
 
@@ -28,13 +27,8 @@ export function apply(ctx: Context): void {
     name: 'conversation.chat.node', key: 'decision-review-record', locale: 'decisionReview',
   }, DecisionRecord))
   const store = createDecisionDrafts()
-  ctx.slots.inject('conversation.composer', () => ctx.slots.register({
-    name: 'conversation.composer', priority: -1, locale: 'decisionReview', store,
-    select: ({ pendingInteraction }: ComposerChainProps): DecisionMatch | null => {
-      if (!(pendingInteraction instanceof PendingQuestion) || pendingInteraction.questions.length !== 1) return null
-      const presentation = pendingInteraction.questions[0]?.intent
-      return presentation?.kind === 'decision-review' ? { pending: pendingInteraction, presentation } : null
-    },
+  ctx.slots.inject('conversation.question.presentation', () => ctx.slots.register({
+    name: 'conversation.question.presentation', key: 'decision-review', locale: 'decisionReview', store,
   }, DecisionPanel))
 }
 

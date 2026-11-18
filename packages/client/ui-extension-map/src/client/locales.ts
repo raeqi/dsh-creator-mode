@@ -1,5 +1,19 @@
 /** User-facing inventory and risk explanations. */
 export const en = {
+  reviewMore: 'Other locations',
+  reviewTitle: 'Choose a location',
+  reviewWindow: 'DSH',
+  reviewRecommended: 'Recommended',
+  reviewDetails: 'How you will use it',
+  reviewContinue: 'Confirm and continue',
+  reviewCancel: 'Decide later',
+  reviewWaiting: 'Waiting for your choice',
+  reviewWorking: 'Sending…',
+  reviewFailed: 'Could not send. Try again.',
+  reviewInvalid: 'This placement could not be displayed.',
+  chosen: 'Chosen location',
+  browse: 'View interface locations',
+
   'slot_root': 'The built-in render-tree root hole (seeded by SlotCore): the one slot the shell itself renders, and the ancestor of every other seat',
   'slot_shell.overlay': 'Frame-wide floating layer, above every column and outside their scroll containers',
   'slot_shell.quota-notice': 'Frame-wide quota notice chain',
@@ -138,6 +152,10 @@ export const en = {
 }
 /** Simplified Chinese dictionary. */
 export const zh: typeof en = {
+  reviewMore: '其他位置',
+  reviewTitle: '选择放置位置', reviewWindow: 'DSH', reviewRecommended: '推荐', reviewDetails: '使用方式',
+  reviewContinue: '确认并继续', reviewCancel: '暂不决定', reviewWaiting: '等待你确认位置', reviewWorking: '正在提交…',
+  reviewFailed: '提交失败，请重试', reviewInvalid: '暂时无法展示位置方案', chosen: '已选择位置', browse: '查看界面位置',
   'slot_root': '整个应用根容器',
   'slot_shell.overlay': '覆盖全窗口的浮层',
   'slot_shell.quota-notice': '全局额度提示',

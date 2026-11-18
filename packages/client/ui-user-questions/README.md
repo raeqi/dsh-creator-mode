@@ -33,6 +33,8 @@ A multi-select draft keeps its selected labels while the user opens or edits the
 
 Fixed approval questions use the same pending-question and answer channel. A feature plugin can supply a higher-priority composer presentation. When none matches, the generic form keeps the offered options answerable; the caller still decides which responses grant permission.
 
+A single `decision-review` question dispatches `conversation.question.presentation` by `intent.view.renderer`, or `decision-review` when absent. Optional `view.data` contains plugin-owned JSON. The question owner supplies channel state and an `answer` callback, rejects duplicate submissions and retains failed requests for retry. Renderers receive no pending-carrier object. An unavailable renderer uses the generic options fallback; display data never authorizes an action.
+
 ### Reading a settled question back
 
 Each answered batch appears once in a right-aligned user-style bubble after its answer is recorded, for native and PTC blocking questions and late replies. The bubble shows every question above its selected choices and custom answer, uses lighter question text, and stays visible when process groups or the containing Turn are folded. A blocking-question answer bubble does not prevent completed work steps from collapsing. Late replies admitted after the opening step are interleaved Turn inputs and keep that Turn open. Each bubble separates the process runs before and after its recorded answer. Unanswered questions remain in the question card and tool row.

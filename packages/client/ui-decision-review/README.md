@@ -26,6 +26,8 @@ Cards keep coverage and gaps beside their actions. Version and source metadata a
 
 A caller may include a `decisionReview` object containing `title`, `choice`, `summary`, and `custom` strings in a successful logged tool result. The Client pairs records only with an explicitly registered native tool call; arbitrary tool output cannot create a decision card. Creator choice is registered by default. Other Client integrations can register `createDecisionRecordDefinition(toolName)` from this package’s `/client` export and declare that module in `dsh.client.external`. Replay performs no request and invokes no action.
 
+The candidate renderer registers the `decision-review` key under `conversation.question.presentation`; the question owner manages the pending carrier and answer state. Other plugins may supply `intent.view.renderer` and JSON `data` for their own keyed presentation while preserving generic answer options.
+
 ## Dev Note
 
 The Host owns action validation through user questions. The Client owns only presentation and draft text. Service registrations, locale dictionaries and composer entries dispose with their plugin contexts.

@@ -1195,6 +1195,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     description: 'Reads the same provider registry and methods used by cordis_inspect_list/query.',
     methods: [
       {
+        signature: 'async review(map: ExtensionMap, design: { outcome: string; usage: string; language: \'en\' | \'zh\' }, exec: ToolExecution): Promise<PlacementChoice>',
+        description: 'Pause the caller until a human confirms a layout or defers it.',
+        parameters: [{ name: 'map', description: 'Inspected declarations used to form complete layout alternatives.' }, { name: 'design', description: 'Short capability description, usage and preferred language.' }, { name: 'exec', description: 'Requesting Agent and cancellation lifetime.' }],
+        returns: 'The exact human-selected layout; deferral never approves implementation.',
+      },
+      {
         signature: 'async inspect(region: ExtensionRegion, exec: ToolExecution): Promise<ExtensionMap>',
         description: 'Capture declared Slots and public Theme/Config capabilities without running or installing a plugin.',
         parameters: [{ name: 'region', description: 'Requested region, or overview for the whole document.' }, { name: 'exec', description: 'Agent scope and cancellation lifetime of the recorded tool call.' }],
@@ -6698,7 +6704,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'DecisionReviewPresentation',
-    declaration: 'export interface DecisionReviewPresentation {\n    kind: \'decision-review\';\n    summary: string;\n    notice?: string;\n    cards: {\n        title: string;\n        summary: string;\n        facts: {\n            label: string;\n            value: string;\n        }[];\n        detail?: string;\n        actions: {\n            option: string;\n            label: string;\n        }[];\n    }[];\n    alternatives: {\n        option: string;\n        label: string;\n    }[];\n}',
+    declaration: 'export interface DecisionReviewPresentation {\n    kind: \'decision-review\';\n    summary: string;\n    notice?: string;\n    cards: {\n        title: string;\n        summary: string;\n        facts: {\n            label: string;\n            value: string;\n        }[];\n        detail?: string;\n        actions: {\n            option: string;\n            label: string;\n        }[];\n    }[];\n    alternatives: {\n        option: string;\n        label: string;\n    }[];\n    view?: {\n        renderer: string;\n        data: JsonValue;\n    };\n}',
   },
   {
     name: 'DecisionReviewRequest',
@@ -8227,6 +8233,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PiAiRequestHeaderContext',
     declaration: 'export interface PiAiRequestHeaderContext extends Readonly<Pick<GenerateOptions<string>, \'provider\' | \'model\' | \'sessionId\' | \'purpose\'>> {\n    readonly baseURL: string;\n}',
+  },
+  {
+    name: 'PlacementChoice',
+    declaration: 'export type PlacementChoice = z.infer<typeof placementChoiceSchema>;',
   },
   {
     name: 'PlatformSession',

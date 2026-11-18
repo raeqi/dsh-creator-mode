@@ -9,7 +9,7 @@ import { brandString } from '@deepseek-ai/dsh-brand'
 import type { ToolCallId } from '@deepseek-ai/dsh-llm'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { AskUserQuestionAnswerItem } from '@deepseek-ai/dsh-user-questions/types'
-import { createWaterfallRequest, PendingQuestion, type QuestionCardSnapshot, type QuestionComposerProps } from '../src/client/contract/slots.ts'
+import { createWaterfallRequest, PendingQuestion, type QuestionPresentation, type QuestionCardSnapshot, type QuestionComposerProps } from '../src/client/contract/slots.ts'
 import { createQuestionDraftStore } from '../src/client/draft-store.ts'
 import { QuestionComposer as Composer, parseRecommendedLabel } from '../src/client/QuestionComposer.tsx'
 import { en, zh } from '../src/client/locales.ts'
@@ -1144,4 +1144,38 @@ it('retains custom-answer focus across Enter navigation between option questions
   fireEvent.change(second, { target: { value: 'second answer' } })
   expect((second as HTMLTextAreaElement).value).toBe('second answer')
   expect(screen.getByRole('radio', { name: 'Two' }).getAttribute('aria-describedby')).toBeNull()
+})
+
+it('routes plugin decisions through the question owner and rejects duplicate answers until a failed send is retried', async () => {
+  const { carrier, answer } = wait([{ id: 'layout', question: 'Where?', options: [{ label: 'page' }],
+    intent: { kind: 'decision-review', summary: 'Todo', cards: [], alternatives: [{ option: 'page', label: 'Page' }],
+      view: { renderer: 'ui-placement', data: { outcome: 'Todo' } } } }])
+  const gate = Promise.withResolvers<undefined>()
+  answer.mockReturnValueOnce(gate.promise.then(() => {}))
+  const isQuestionOwner = (value: object): value is QuestionPresentation => 'question' in value && 'answer' in value
+  const renderer: QuestionComposerProps['renderSlot'] = (name, props, options) => {
+    if (name !== 'conversation.question.presentation' || !isQuestionOwner(props)) return options?.fallback ?? null
+    const owner = props
+    return <div data-renderer={options?.entryKey}><button disabled={owner.disabled} onClick={() => { void owner.answer(['page']); void owner.answer(['page']) }}>Confirm layout</button>
+      {owner.failed && <span role="alert">Send failed</span>}</div>
+  }
+  render(<QuestionComposer matched={carrier} {...kit} renderSlot={renderer} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm layout' }))
+  expect(answer).toHaveBeenCalledTimes(1)
+  expect(screen.getByRole('button').hasAttribute('disabled')).toBe(true)
+  await act(async () => { gate.reject(new Error('disconnected')) })
+  expect(screen.getByRole('alert').textContent).toBe('Send failed')
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm layout' }))
+  expect(answer).toHaveBeenCalledTimes(2)
+  expect(answer).toHaveBeenLastCalledWith({ answers: [{ id: 'layout', selected: ['page'] }] })
+})
+
+it('keeps the ordinary question flow as the fallback when a plugin presentation is absent', () => {
+  const { carrier, answer } = wait([{ id: 'layout', question: 'Where?', options: [{ label: 'Page' }],
+    intent: { kind: 'decision-review', summary: 'Todo', cards: [], alternatives: [{ option: 'Page', label: 'Page' }],
+      view: { renderer: 'not-installed', data: {} } } }])
+  render(<QuestionComposer matched={carrier} {...kit} renderSlot={(_name, _props, options) => options?.fallback ?? null} />)
+  fireEvent.click(screen.getByRole('radio', { name: 'Page' }))
+  fireEvent.click(screen.getByRole('button', { name: '提交' }))
+  expect(answer).toHaveBeenCalledWith({ answers: [{ id: 'layout', selected: ['Page'] }] })
 })

@@ -1,5 +1,5 @@
 ---
-description: "Read-only maps of runtime UI extension declarations, placement suggestions and theme/config capabilities."
+description: "Pause for a verified UI layout choice, or browse runtime extension declarations read-only."
 kind: "package-reference"
 ---
 
@@ -9,50 +9,59 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Explore actual runtime UI extension positions before developing a visible feature. The independent plugin reads the same registry as `cordis_inspect_list` and `cordis_inspect_query`; it does not search plugin markets, install plugins or ask for approval.
+Choose where a visible plugin feature will appear before implementation. Creator mode calls this independent plugin with market search either on or off. The model pauses until the user confirms a layout directly in the canvas.
 
 ## Table of Contents
 
 - [Use this package](#use-this-package)
-- [Model Experience](#model-experience)
-- [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
+
 - [Dev Note](#dev-note)
 
+- [Model Experience](#model-experience)
+
+- [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
+
+<a id="use-this-package"></a>
 ## Use this package
 
-Mount beside the Cordis inspection registry and its Host/Client providers. `ui_extension_map` displays an overview or suggestions for a requested `region`. `ctx.extensionMap.inspect(region, execution)` lets a tool owner reuse inspection. It discovers provider methods before querying Client `Slots.listSubTree`, Client `Theme.listTokens`, and Host `Config.listConfigs` for theme, layout and right-sidebar owners. Configuration inspection reads schema field names and status, never saved values. Exact-root queries observe named occupants for suggested positions.
+Mount beside the Cordis inspection registry and its Host/Client providers. `ctx.extensionMap.inspect(region, execution)` discovers providers and reads Client `Slots.listSubTree`, Client `Theme.listTokens`, and Host `Config.listConfigs` for theme, layout and right-sidebar owners. Config inspection reads schema fields and status, never saved values. `slotLimit` bounds declarations (default 512); `recommendationLimit` bounds suggestions and exact-root reads (default 3).
 
-Creator preparation calls the service for visible UI additions, with Search first either on or off. Tool-only capabilities, modes and service connections omit placement inspection. A sidebar suggestion includes the panel body and opening entry when both are declared. Suggestions only use declared list/keyed positions without replacement risk; a keyed renderer also requires owner data and a navigation entry. Other positions remain browsable with explicit replacement or wrapping warnings.
+`ctx.extensionMap.review(map, design, execution)` requires user questions and awaits one blocking layout decision. A right panel includes both its body and opening entry; these are parts of one layout, not competing choices. Primary alternatives are a conversation card, separate page, or a small panel near the composer. Other locations fold header/sidebar actions, Settings and Plugins entries. Confirmation returns the selected region and all required slot identifiers. Deferral returns `cancelled` and grants no implementation permission. Unload or caller cancellation aborts the wait.
 
-The Client shows a compact spatial map, short suggestions and expandable technical details. Clicking a region browses its inventory. Bring this location into chat adds an exact slot identifier as a quote to the originating Session draft, preserving existing text and attachments; it never sends the message. The user can describe a different location in ordinary conversation without opening a mandatory questionnaire. The inventory list has its own bounded scroll area.
+The placement panel shows a short outcome, spatial choices, a recommendation and a fixed confirmation footer. Usage is folded. It has no slot counts, CSS tokens or composer-quote step. Preselection never submits an answer. The panel is bounded to 55vh / 460px on desktop and 60vh on narrow screens; its body scrolls independently.
 
-Other tool owners register native producers through `ctx.uiExtensionMap.registerProducer(name)` and dispose the returned registration with their context. Successful results carry versioned `extensionMap` presentation metadata; model content contains only suggestions, counts and source failures. Creator registers `creator_prepare`; the plugin registers `ui_extension_map`. Replay reconstructs snapshots from matching calls and metadata without querying runtime providers or repeating actions.
+`ui_extension_map` is independent read-only exploration. Its inventory starts collapsed, offers no decision buttons and never pauses for a choice. Exact identifiers and risks appear only in per-location details. Theme/config data remain inspectable in tool metadata rather than the product-facing canvas.
 
-`slotLimit` bounds retained declarations (default 512); omissions are reported. `recommendationLimit` bounds suggestions and exact-root queries (default 3). Missing providers, malformed responses and query failures remain visible independently of successful sources. Unloading aborts in-flight reads.
+Tool owners register native producers with `ctx.uiExtensionMap.registerProducer(name)` and dispose the returned registration with their context. Successful results carry versioned `extensionMap` metadata and may add `placementChoice`. Creator registers `creator_prepare`; this plugin registers `ui_extension_map`. While preparation is pending only its normal tool status appears in chat. A chosen layout produces a one-line outcome, not another map. Replay uses logged metadata without querying providers or invoking an action.
 
+<a id="dev-note"></a>
 ## Dev Note
 
-The Host service owns bounded reads and cancellation. The Client owns spatial browsing and draft feedback. Registrations and dictionaries dispose with their Cordis contexts; recoverable facts use existing tool metadata without a new Session event.
+The Host owns bounded discovery and the awaited question. The question owner retains channel state, submission and cancellation; this plugin renders the keyed `conversation.question.presentation` entry. Registrations and dictionaries dispose with their Cordis contexts. Existing tool metadata records placement outcomes without a new Session event.
 
+<a id="model-experience"></a>
 ## Model Experience
 
 ### Placement discovery
 
 #### What the model sees
 
-The read-only `ui_extension_map` schema explains when to inspect interface positions. Results contain requested-region suggestions, declared-slot counts, theme token names, public configuration field names and source failures. Caller-owned Creator guidance describes the integration. The complete inventory stays in logged presentation metadata and the interactive card.
+`ui_extension_map` returns bounded declarations and source failures. `creator_prepare` returns only the confirmed layout’s declarations; registered occupants are neighbors, not proof of a matching capability. Exact props and owner APIs remain available through Cordis inspection. The calling workflow owns implementation and permission decisions.
 
 #### Token effect
 
-One tool schema is added where visible. Results include a bounded set of recommendations rather than the entire slot tree; technical props remain available through exact inspection queries.
+One read-only tool schema is added. Full inventories remain in presentation metadata rather than the model transcript. Human choices return a compact layout instead of a tree.
 
 #### KV Cache effect
 
-The tool schema is stable while configuration is unchanged. Inspection results append to the transcript. Browsing the canvas changes no model input; sending a location quote adds an ordinary user message.
+Tool schemas stay stable while configuration is unchanged. Inspection results and accepted layout outcomes append to the transcript; local selection edits add no model input.
 
 ## Known Limitations and Deferred Work
 
-- Declarations and registered occupants do not establish current visibility, compatibility or a complete working integration. Exact props and owner APIs need inspection before implementation. Config status `absent` means no native schema, not a disabled plugin.
-- Client queries use the first valid response from connected pages. The card is a recorded snapshot, not a continuously refreshed window overlay; unknown/new slot names retain their technical identifier. Regions group declarations by their owning name prefixes; custom locations may appear under Window and pages. The schematic does not report pixel coordinates.
-- Regions describe application-document positions. A missing slot does not establish that a capability is impossible, and operating-system windows require separate investigation. Factories are counted separately from mountable slots.
-- Source failures do not grant implementation permission or certify unsupported positions. The calling workflow owns recovery and verification; this plugin performs no registration, installation or market decision.
+- Declarations do not prove current visibility or working integration. Verify exact props, navigation and owner APIs before coding. `absent` Config status means no native schema, not a disabled plugin.
+
+- Inspection uses the first valid response from connected pages. The schematic records declarations, not pixel coordinates. Partial failures stay in metadata; missing data never proves impossibility.
+
+- Layout choices require every declared slot in their recipe. Keyed layouts require fresh unique keys; their replacement warning applies to occupied keys. Choices do not install, register UI or authorize replacing existing renderers. Ordinary question options remain the fallback when a dedicated Client renderer is unavailable.
+
+- Regions describe the application document. Operating-system windows require separate capabilities. Blocking placement questions follow the existing question service’s interruption behavior.

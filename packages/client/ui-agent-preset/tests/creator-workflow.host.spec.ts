@@ -9,6 +9,7 @@ import type { SessionId } from '@deepseek-ai/dsh-session'
 import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
 import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
 import { defineTool } from '@deepseek-ai/dsh-tools'
+import type { PlacementChoice } from '@deepseek-ai/dsh-client-ui-extension-map'
 import type { AskUserQuestionRequest } from '@deepseek-ai/dsh-user-questions'
 import * as host from '../src/index.ts'
 
@@ -34,8 +35,10 @@ async function fixture(marketFirst = true, preset = 'cordis') {
     }
   }
   const inspectedRegions: string[] = []
+  let placement: Promise<PlacementChoice> = Promise.resolve({ status: 'chosen' as const, region: 'right-sidebar' as const, label: '右侧面板', slots: ['sidebar.right.pane.tab', 'conversation.session.header.utilities'] })
   class Maps extends Service {
     constructor(inner: Context) { super(inner, 'extensionMap') }
+    review() { return placement }
     inspect(region: string) {
       inspectedRegions.push(region)
       return Promise.resolve({ version: 1, region, slots: [{ name: 'sidebar.right.pane.tab', kind: 'keyed',
@@ -74,6 +77,7 @@ async function fixture(marketFirst = true, preset = 'cordis') {
     return result
   }
   return { ctx, workflow, agent, run, requests, approvalCalls, inspectedRegions,
+    deferPlacement: (value: typeof placement) => { placement = value },
     setPreset: (value: string) => { preset = value; agent.session.append('agent-preset/selected', { agentPreset: value }) },
     setMarketFirst: (value: boolean) => { marketFirst = value; workflow.ctx.emit('loader/volatile-update', [['marketFirst']]) }, nextTurn: () => {
       agent.session.append('turn/end', { turn, reason: { kind: 'completed' } })
@@ -204,7 +208,7 @@ it('searches only the configured budget, keeps partial failures visible, and off
   }
   await f.ctx.plugin(Market)
   const discovery = await f.run('creator_prepare', { ...design, query: 'notes', language: 'zh', location: 'right-sidebar', impact: '右侧笔记' })
-  expect(discovery.isError).toBe(false)
+  expect(discovery.isError, JSON.stringify(discovery)).toBe(false)
   expect(reads).toEqual(['https://market.example/1', 'https://market.example/2', 'https://market.example/3'])
   expect(discovery.content.flatMap(part => part.type === 'text' ? [part.text] : []).join('')).toContain('partial-or-failed')
   f.select('使用 1')
@@ -352,7 +356,7 @@ it.each([
   const direct = await fixture(false)
   expect(await direct.run('write_test')).toMatchObject({ isError: true })
   const preview = await direct.run('creator_prepare', { ...design, query, language: 'zh', ...location === undefined ? {} : { location, impact: '在右侧展示笔记' } })
-  expect(preview.isError).toBe(false)
+  expect(preview.isError, JSON.stringify(preview)).toBe(false)
   expect(preview.content.some(part => part.type === 'text' && part.text.includes('"preview"'))).toBe(true)
   expect(direct.inspectedRegions).toEqual(location === undefined ? [] : [location])
   if (location === undefined) expect(preview.meta).toEqual({})
@@ -366,4 +370,33 @@ it.each([
   searched.select('创建新插件')
   expect(await searched.run('creator_choose', { comparison: '已有候选仅供参考，也可继续开发自己的方案' })).toMatchObject({ isError: false })
   expect(await searched.run('write_test')).toMatchObject({ isError: false })
+})
+
+it('blocks writes while placement is pending and applies the human-selected page with search off', async () => {
+  const f = await fixture(false)
+  const pending = Promise.withResolvers<PlacementChoice>()
+  f.deferPlacement(pending.promise)
+  const preparing = f.run('creator_prepare', { query: 'todo', language: 'zh', outcome: '新增待办、勾选完成、筛选状态',
+    usage: '添加任务后勾选完成', location: 'right-sidebar', impact: '独立待办界面' })
+  await vi.waitFor(() => { expect(f.inspectedRegions).toEqual(['right-sidebar']) })
+  expect(await f.run('write_test')).toMatchObject({ isError: true })
+  pending.resolve({ status: 'chosen', region: 'page', label: '独立页面', slots: ['main', 'sidebar.panellist'] })
+  const result = await preparing
+  expect(result.isError, JSON.stringify(result)).toBe(false)
+  expect(result.content.some(part => part.type === 'text' && part.text.includes('"location":"page"'))).toBe(true)
+  expect(result.meta).toMatchObject({ placementChoice: { region: 'page', slots: ['main', 'sidebar.panellist'] } })
+  expect(await f.run('write_test')).toMatchObject({ isError: false })
+  expect(f.requests).toEqual([])
+})
+it('keeps cancellation and read-only previews blocked independently of the market preference', async () => {
+  for (const previewOnly of [false, true]) {
+    const f = await fixture(false)
+    f.deferPlacement(Promise.resolve({ status: 'cancelled' }))
+    const result = await f.run('creator_prepare', { ...design, query: 'todo', language: 'zh', location: 'right-sidebar', impact: '待办面板', previewOnly })
+    expect(result.isError, JSON.stringify(result)).toBe(false)
+    expect(await f.run('write_test')).toMatchObject({ isError: true })
+    expect(await f.run('creator_choose', { comparison: 'Do not bypass the layout decision' })).toMatchObject({ isError: true })
+    f.setMarketFirst(true)
+    expect(await f.run('write_test')).toMatchObject({ isError: true })
+  }
 })

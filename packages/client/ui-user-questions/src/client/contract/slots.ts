@@ -17,9 +17,31 @@ declare module '@deepseek-ai/dsh-client-ui-session/client' {
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface SlotMap {
+    /** Plugin decision UI; the question owner retains submission, cancellation and channel state. */
+    'conversation.question.presentation': { kind: 'keyed'; scope: 'session'; owner: QuestionPresentation }
     /** Actions for the exact plan under review; approval remains with the question composer. */
     'conversation.plan-review.actions': { kind: 'list'; scope: 'session'; owner: { review: PlanReview; requestKey: PendingQuestion['key'] } }
   }
+}
+
+/** JSON and callbacks supplied to an optional decision renderer. */
+export interface QuestionPresentation {
+  /** Reload-unique request identity for local drafts. */
+  requestKey: string
+  /** The single question and its declared options and presentation. */
+  question: AskUserQuestionItem
+  /** Whether submission is in flight. */
+  busy: boolean
+  /** Whether the answer channel is unavailable or the request has settled. */
+  disabled: boolean
+  /** Last submission failed; the renderer must retain the user's selection. */
+  failed: boolean
+  /** Recorded answer when reading an already-settled question. */
+  recorded: AskUserQuestionAnswerItem | undefined
+  /** Requests whose drafts may still be used. */
+  liveKeys: readonly string[]
+  /** Submit declared option values or an optional custom answer; false keeps the request editable. */
+  answer: (selected: string[], custom?: string) => Promise<boolean>
 }
 
 /** One structured answer batch covering every question of the request. */
@@ -568,7 +590,7 @@ export type QuestionWait = PendingQuestion
 export type QuestionComposerProps =
   PropsRuntime<'conversation.composer'>
   & PropsStore<ReturnType<typeof createQuestionDraftStore>>
-  & PropsRenderSlots<'conversation.plan-review.actions'>
+  & PropsRenderSlots<'conversation.plan-review.actions' | 'conversation.question.presentation'>
   & InjectFace<{ keyedHooks: { questionCard: (key: string) => PendingQuestion | undefined } }>
   & { matched: QuestionWait }
   & PropsLocale<'question'>

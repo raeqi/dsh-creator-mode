@@ -18,6 +18,40 @@ export type ExtensionMap = z.infer<typeof mapSchema>
 /** Declared slot with optional observations from an exact-root inspection. */
 export type ExtensionSlot = ExtensionMap['slots'][number]
 
+/** Human placement alternatives group every required entry and body slot into one layout. */
+export const placementSchema = z.object({ outcome: z.string(), usage: z.string(),
+  recommended: z.string().optional(), options: z.array(z.object({
+    region: regionSchema.exclude(['overview']), label: z.string(),
+    description: z.string(), slots: z.array(z.string()), option: z.string(),
+  })).min(1) })
+/** Data owned by the placement question renderer. */
+export type PlacementReview = z.infer<typeof placementSchema>
+/** Recorded placement outcome; cancelling grants no implementation permission. */
+export const placementChoiceSchema = z.object({ status: z.enum(['chosen', 'cancelled', 'preview']),
+  region: regionSchema.optional(), label: z.string().optional(), slots: z.array(z.string()).optional() })
+/** Parsed human placement outcome. */
+export type PlacementChoice = z.infer<typeof placementChoiceSchema>
+
+/**
+ * Group entry and body declarations into meaningful layout alternatives.
+ * @param map - Actual runtime declarations.
+ * @returns Layouts whose required declaration identifiers are present.
+ */
+export function placementLayouts(map: ExtensionMap): { region: PlacementReview['options'][number]['region']; slots: string[] }[] {
+  const layouts: { region: PlacementReview['options'][number]['region']; slots: string[] }[] = [
+    { region: 'right-sidebar', slots: ['sidebar.right.pane.tab', 'conversation.session.header.utilities'] },
+    { region: 'conversation', slots: ['conversation.chat.node'] },
+    { region: 'page', slots: ['main', 'sidebar.panellist'] },
+    { region: 'composer', slots: ['conversation.composer.dock'] },
+    { region: 'header', slots: ['conversation.session.header.utilities'] },
+    { region: 'left-sidebar', slots: ['sidebar.footer.action'] },
+    { region: 'settings', slots: ['settings.section'] },
+    { region: 'plugins', slots: ['plugins.tab'] },
+  ]
+  const names = new Set(map.slots.filter(slot => (slot.kind === 'list' && slot.risk === 'none') || (slot.kind === 'keyed' && slot.risk !== 'wraps-owner-content')).map(slot => slot.name))
+  return layouts.filter(layout => layout.slots.every(name => names.has(name)))
+}
+
 const nodeSchema = z.object({ type: z.enum(['slot', 'factory']), name: z.string(), kind: slotSchema.shape.kind.optional(),
   scope: z.string().optional(), purpose: z.string().optional(), replaceRisk: slotSchema.shape.risk.optional(),
   children: z.array(z.unknown()).optional() })

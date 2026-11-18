@@ -3,10 +3,11 @@ import { Service, type Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { mapDefinition } from './record.ts'
-import { ExtensionMapCard, type MapInjected } from './ExtensionMapCard.tsx'
+import { ExtensionMapCard } from './ExtensionMapCard.tsx'
 import { en, zh, type MapKey } from './locales.ts'
+import type {} from '@deepseek-ai/dsh-client-ui-user-questions/client'
+import { PlacementPanel } from './PlacementPanel.tsx'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -32,20 +33,16 @@ class ExtensionMapUI extends Service {
 }
 
 /** Required rendering, localization and session-scoped draft services. */
-export const inject = ['slots', 'locale', 'uiConversation', 'sessions']
+export const inject = ['slots', 'locale', 'uiConversation']
 /** @param ctx - Browser plugin context owning the canvas and producer service. */
 export async function apply(ctx: Context): Promise<void> {
   await ctx.plugin(ExtensionMapUI)
   ctx.effect(() => ctx.locale.register('extensionMap', { en, zh }), 'Extension map copy')
   ctx.effect(() => ctx.uiConversation.events.register(mapDefinition('ui_extension_map')), 'Extension map tool records')
-  ctx.inject(['conversation'], scope => scope.slots.inject('conversation.chat.node', () => scope.slots.register({
+  ctx.slots.inject('conversation.question.presentation', () => ctx.slots.register({
+    name: 'conversation.question.presentation', key: 'ui-placement', locale: 'extensionMap',
+  }, PlacementPanel))
+  ctx.slots.inject('conversation.chat.node', () => ctx.slots.register({
     name: 'conversation.chat.node', key: 'ui-extension-map', locale: 'extensionMap',
-    inject: (sessionId: SessionId): MapInjected => ({ quoteLocation: (text) => {
-      const binding = scope.sessions.binding(sessionId)
-      if (binding === undefined) return
-      const input = scope.conversation.input.for(binding.ctx)
-      input.insertQuote(text)
-      input.focus()
-    } }),
-  }, ExtensionMapCard)))
+  }, ExtensionMapCard))
 }

@@ -32,6 +32,9 @@
     },
     {
       "path": "../../core/session"
+    },
+    {
+      "path": "../ui-user-questions"
     }
   ],
   "include": [

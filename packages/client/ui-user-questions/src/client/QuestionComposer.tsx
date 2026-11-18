@@ -153,6 +153,9 @@ function AnswerField(props: AnswerFieldProps) {
 export function QuestionComposer(props: QuestionComposerProps) {
   const question = props.matched
   const review = useMemo(() => planReviewOf(question.questions), [question])
+  if (question.questions.length === 1 && question.questions[0]?.intent?.kind === 'decision-review') {
+    return <DecisionPresentation key={question.key} {...props} />
+  }
   return review === undefined
     ? (
       <QuestionFlow
@@ -165,6 +168,37 @@ export function QuestionComposer(props: QuestionComposerProps) {
       />
     )
     : <PlanReviewPanel key={question.key} pending={question} review={review} t={props.t} renderSlot={props.renderSlot} />
+}
+
+/** The question owner settles the channel; optional renderers receive only data and callbacks. */
+function DecisionPresentation(props: QuestionComposerProps) {
+  const pending = props.matched
+  const snapshot = props.useQuestionCard(pending.key)
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const submitting = useRef(false)
+  const question = pending.questions[0]
+  if (question?.intent?.kind !== 'decision-review') return null
+  const disabled = busy || sent || snapshot === undefined || snapshot.closed || snapshot.channel === 'none' || pending.review !== undefined
+  return props.renderSlot('conversation.question.presentation', { requestKey: pending.key, question, busy, disabled, failed,
+    recorded: pending.review?.[0], liveKeys: pending.liveKeys(),
+    answer: async (selected, custom) => {
+      if (disabled || submitting.current) return false
+      submitting.current = true
+      setBusy(true)
+      setFailed(false)
+      try {
+        const channel = pending.snapshot().channel
+        await pending.answer({ answers: [{ id: question.id, selected, ...custom === undefined ? {} : { custom } }] })
+        setSent(true)
+        if (channel === 'rpc') void pending.dismiss().catch(() => { setFailed(true) })
+        return true
+      } catch (_error) { submitting.current = false; setFailed(true); return false }
+      finally { setBusy(false) }
+    },
+  }, { entryKey: question.intent.view?.renderer ?? 'decision-review', fallback: <QuestionFlow
+    pending={pending} t={props.t} useStore={props.useStore} useQuestionCard={props.useQuestionCard} actions={props.actions} /> })
 }
 
 type QuestionFlowProps =
