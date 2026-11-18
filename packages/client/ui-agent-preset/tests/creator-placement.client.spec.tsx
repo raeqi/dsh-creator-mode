@@ -15,7 +15,7 @@ afterEach(cleanup)
 it('marks the proposed region and explains the impact without claiming the API is verified', () => {
   render(<CreatorPlacementCard {...({ node: { data: { query: 'notes', location: 'right-sidebar', impact: '在右侧展示笔记，不遮挡输入框' } },
     t: (key: keyof typeof zh) => zh[key] } as Parameters<typeof CreatorPlacementCard>[0])} />)
-  expect(screen.getByRole('region', { name: '拟放置的界面位置' })).toBeTruthy()
+  expect(screen.getByRole('region', { name: '将做成什么' })).toBeTruthy()
   expect(screen.getByText('右侧栏').getAttribute('data-selected')).toBe('true')
   expect(screen.getByText('消息输入框').getAttribute('data-selected')).toBe('false')
   expect(screen.getByText('在右侧展示笔记，不遮挡输入框')).toBeTruthy()
@@ -34,4 +34,13 @@ it('replays non-UI preparation without a placement card or an undefined assemble
   assembler.replaceWindow([{ type: 'event', event }], false)
   expect(() => assembler.flush()).not.toThrow()
   expect(assembler.snapshot('chat')).toEqual([])
+})
+
+it('shows the tool effect and example usage without inventing a UI region', () => {
+  render(<CreatorPlacementCard {...({ node: { data: { query: 'bilibili', outcome: '返回标题、UP 主和视频链接', usage: '在对话中发送“搜索 B 站 Vue 教程”' } },
+    t: (key: keyof typeof zh) => zh[key] } as Parameters<typeof CreatorPlacementCard>[0])} />)
+  expect(screen.getByText('返回标题、UP 主和视频链接')).toBeTruthy()
+  expect(screen.getByText('在对话中发送“搜索 B 站 Vue 教程”')).toBeTruthy()
+  expect(screen.queryByText('拟放置的界面位置')).toBeNull()
+  expect(screen.queryByText('右侧栏')).toBeNull()
 })

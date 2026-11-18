@@ -232,10 +232,11 @@ const TOOL_PACKAGES: ToolPackage[] = [
     pkg: '@deepseek-ai/dsh-client-ui-agent-preset',
     dir: 'ui-agent-preset',
     source: 'packages/client/ui-agent-preset/src/creator-workflow.ts',
-    requires: ['ctx.tools', 'ctx.sessionProjections', 'ctx.agentPresets', 'ctx.userQuestions (decision)', 'ctx.pluginMarket (optional discovery)'],
+    requires: ['ctx.tools', 'ctx.sessionProjections', 'ctx.agentPresets', 'ctx.agents', 'ctx.userQuestions (decision)', 'ctx.pluginMarket (optional discovery)'],
     writes: ['tool/call', 'tool/result'],
     async mount(ctx) {
       await ctx.plugin(CatalogCreatorPresets)
+      await ctx.plugin(AgentRegistry)
       await ctx.plugin(CreatorControls)
     },
   },

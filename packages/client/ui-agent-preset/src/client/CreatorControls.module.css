@@ -37,11 +37,11 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.indicator { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.35; }
+.indicator { width: 6px; height: 6px; border-radius: 50%; corner-shape: round; background: currentColor; opacity: 0.35; }
 .switch[aria-checked='true'] { color: var(--dsw-alias-label-primary); }
 .switch[aria-checked='true'] .indicator { opacity: 1; }
 .switch:disabled { opacity: 0.5; cursor: default; }
-.example:focus-visible, .switch:focus-visible { outline: 2px solid var(--dsw-alias-label-primary); outline-offset: 2px; }
+.example:focus-visible, .switch:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
 .error { color: var(--dsw-alias-label-secondary); font-size: 12px; }
 @media (hover: hover) {
   .example:hover, .switch:not(:disabled):hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }

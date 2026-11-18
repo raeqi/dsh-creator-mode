@@ -4,9 +4,11 @@
   background: var(--dsw-alias-interactive-bg-hover);
   color: var(--dsw-alias-label-primary);
   font-size: 13px;
+  line-height: 1.55;
   overflow-wrap: anywhere;
 }
 .title { font-weight: 500; margin-bottom: 8px; }
+.outcome { margin: 0 0 10px; font-size: inherit; }
 .text { color: var(--dsw-alias-label-secondary); margin: 4px 0; }
 .regions { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); grid-template-areas: "page page" "conversation sidebar" "composer sidebar"; gap: 4px; margin: 8px 0; }
 .region { padding: 8px; border: 1px solid currentColor; border-radius: var(--dsw-radius-sm); color: var(--dsw-alias-label-secondary); }

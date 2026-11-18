@@ -77,7 +77,7 @@ it.each([true, false])('uses the accepted market-first=%s preference in the real
       const system = agent.session.deriveMessages().find(message => message.role === 'system')
       const prompt = system?.content.flatMap(block => block.type === 'text' ? [block.text] : []).join('') ?? ''
       expect(prompt).toContain('Creator mode: prefer configuration, composition, and small adaptations')
-      expect(prompt.includes('It searches configured sources within its reported limits.')).toBe(marketFirst)
+      expect(prompt.includes('Preparation also searches configured sources within its reported limits.')).toBe(marketFirst)
       expect(prompt.includes('The user turned off market-first discovery.')).toBe(!marketFirst)
       expect(agent.session.snapshotEvents().filter(event => event.type === 'tool/call')).toEqual([])
       await page.getByText('READY', { exact: true }).waitFor()

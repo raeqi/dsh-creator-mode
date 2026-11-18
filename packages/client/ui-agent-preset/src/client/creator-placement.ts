@@ -8,8 +8,10 @@ export type CreatorPlacementKind = 'creator-placement'
 /** A proposed region and its user-visible impact; neither asserts the API has been verified. */
 export interface CreatorPlacement {
   query: string
-  location: 'page' | 'conversation' | 'composer' | 'right-sidebar'
-  impact: string
+  outcome?: string
+  usage?: string
+  location?: 'page' | 'conversation' | 'composer' | 'right-sidebar'
+  impact?: string
 }
 
 declare module '@deepseek-ai/dsh-client-ui-chat/client' {
@@ -29,11 +31,20 @@ export const creatorPlacementDefinition: ConversationNodeDefinition<{ placement:
     let args: unknown
     try { args = JSON.parse(match.event.data.arguments) }
     catch { return { placement: null } } // A malformed recorded tool call provides no proposed placement.
-    if (typeof args !== 'object' || args === null || !('location' in args) || !('query' in args) || !('impact' in args)
-      || typeof args.query !== 'string' || typeof args.impact !== 'string') return { placement: null }
-    const location = args.location
-    if (location !== 'page' && location !== 'conversation' && location !== 'composer' && location !== 'right-sidebar') return { placement: null }
-    return { placement: { query: args.query, impact: args.impact, location } }
+    if (typeof args !== 'object' || args === null || !('query' in args) || typeof args.query !== 'string') return { placement: null }
+    const placement: CreatorPlacement = { query: args.query }
+    if ('outcome' in args && typeof args.outcome === 'string' && 'usage' in args && typeof args.usage === 'string') {
+      placement.outcome = args.outcome
+      placement.usage = args.usage
+    }
+    if ('location' in args && 'impact' in args && typeof args.impact === 'string') {
+      const location = args.location
+      if (location === 'page' || location === 'conversation' || location === 'composer' || location === 'right-sidebar') {
+        placement.location = location
+        placement.impact = args.impact
+      }
+    }
+    return { placement: placement.outcome === undefined && placement.location === undefined ? null : placement }
   },
   update: context => context.state,
   buildViewNode: (context) => {

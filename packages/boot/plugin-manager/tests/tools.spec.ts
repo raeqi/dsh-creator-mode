@@ -307,7 +307,7 @@ it('tells the agent the next step for each change outcome it can act on', async 
     manager.setBundleEnabled.mockResolvedValueOnce(result as never)
     return (JSON.parse(resultText(await call({ action: 'set_bundle', target: 'bundle', enabled: true }))) as { nextStep?: string }).nextStep
   }
-  expect(await outcome({ changed: true, application: 'applied' })).toBeUndefined()
+  expect(await outcome({ changed: true, application: 'applied' })).toContain('Client plugins synchronize automatically')
   expect(await outcome({ changed: false, application: 'cancelled' })).toContain('nothing changed')
   expect(await outcome({ changed: true, application: 'overridden' })).toContain('higher-priority layer')
   expect(await outcome({ changed: true, application: 'restart-required', restartReason: 'host-module' }))

@@ -11,14 +11,17 @@ const regions = ['page', 'conversation', 'composer', 'right-sidebar'] as const
  * @returns The region sketch and explanation for this task.
  */
 export function CreatorPlacementCard({ node, t }: PropsRuntime<'conversation.chat.node', CreatorPlacementKind> & PropsLocale<'settings.agentPreset'>) {
-  return <section className={css.card} aria-label={t('creatorPreparationLocation')}>
-    <div className={css.title}>{t('creatorPreparationLocation')}</div>
-    <div className={css.regions}>
-      {regions.map(region => <div key={region} className={css.region} data-region={region} data-selected={node.data.location === region}>
-        {t(`creatorRegion_${region}`)}{node.data.location === region && <span> · {t('creatorPreparationProposed')}</span>}
-      </div>)}
-    </div>
-    <p className={css.text}>{node.data.impact}</p>
-    <div className={css.text}>{t('creatorPreparationPlacementHelp')}</div>
+  return <section className={css.card} aria-label={t('creatorPreparationTitle')}>
+    {node.data.outcome !== undefined && <><div className={css.title}>{t('creatorPreparationTitle')}</div>
+      <p className={css.outcome}>{node.data.outcome}</p>
+      <div className={css.title}>{t('creatorPreparationUsage')}</div><p className={css.text}>{node.data.usage}</p></>}
+    {node.data.location !== undefined && <><div className={css.title}>{t('creatorPreparationLocation')}</div>
+      <div className={css.regions}>
+        {regions.map(region => <div key={region} className={css.region} data-region={region} data-selected={node.data.location === region}>
+          {t(`creatorRegion_${region}`)}{node.data.location === region && <span> · {t('creatorPreparationProposed')}</span>}
+        </div>)}
+      </div>
+      <p className={css.text}>{node.data.impact}</p>
+      <div className={css.text}>{t('creatorPreparationPlacementHelp')}</div></>}
   </section>
 }

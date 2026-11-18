@@ -61,6 +61,7 @@ it('shows a default-on accessible switch, keeps accepted state during a pending 
     await gate.promise
   })
   expect(button.getAttribute('aria-checked')).toBe('false')
+  expect(button.textContent).toBe('直接创作')
   act(() => { b.state.set({ byId: { s1: { blank: false, projectionValues: { agentPreset: 'standard' } } } }) })
   expect(screen.queryByRole('switch')).toBeNull()
 })

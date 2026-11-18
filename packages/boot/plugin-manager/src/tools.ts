@@ -52,12 +52,12 @@ const RESTART_STEPS: Record<RestartReason, string> = {
 /**
  * The model-facing result of a change: the manager's result plus the next step its outcome calls for.
  * @param result The manager's result.
- * @returns The result with `nextStep` when it is not plainly applied.
+ * @returns The result with status-specific verification or recovery guidance.
  */
 function withNextStep(result: ChangeResult): ChangeResult & { nextStep?: string } {
   switch (result.application) {
     case 'applied':
-      return result
+      return { ...result, nextStep: 'The change is applied to the live profile. Client plugins synchronize automatically. Verify the current capability or UI; do not ask the user to refresh the page unless an actual client failure requires recovery.' }
     case 'cancelled':
       return { ...result, nextStep: 'The installation was cancelled and its files restored; nothing changed.' }
     case 'overridden':

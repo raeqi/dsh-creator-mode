@@ -9,9 +9,8 @@ import css from './DecisionPanel.module.css'
  * @returns A read-only decision record in the conversation.
  */
 export function DecisionRecord({ node, t }: PropsRuntime<'conversation.chat.node', DecisionRecordKind> & PropsLocale<'decisionReview'>) {
-  return <section className={css.card} aria-label={t('recorded')}>
+  return <section className={`${css.card} ${css.record}`} aria-label={t('recorded')}>
     <div className={css.eyebrow}>{t('recorded')}</div><h3>{node.data.choice}</h3>
-    <p className={css.summary}>{node.data.title}</p>
     {node.data.custom !== '' && <p>{t('custom')}: {node.data.custom}</p>}
     {node.data.summary !== '' && <details><summary>{t('recordDetails')}</summary><p>{node.data.summary}</p></details>}
   </section>

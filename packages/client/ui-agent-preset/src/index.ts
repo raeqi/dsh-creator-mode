@@ -39,7 +39,7 @@ export const Config = z.object({ marketFirst: z.boolean().default(true).volatile
  */
 export function apply(ctx: Context, config: Config): void {
   ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
-  ctx.inject(['tools', 'sessionProjections', 'agentPresets'], child => registerCreatorWorkflow(child, config))
+  ctx.inject(['tools', 'sessionProjections', 'agentPresets', 'agents'], child => registerCreatorWorkflow(child, config))
   ctx.inject(['systemPrompt', 'agentPresets'], (child) => {
     child.effect(() => child.systemPrompt.section({
       name: 'creator:reuse-policy',

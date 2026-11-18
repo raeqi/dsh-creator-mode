@@ -45,18 +45,22 @@ On Desktop, the optional [product analytics](../product-analytics/README.md) ser
 
 Creator mode uses the existing mode picker and conversation. Four starting points appear together below an untouched Creator session's composer. Selecting one inserts an editable example request with a concrete goal and verification requirements; it does not send a message. The examples cover a notes panel, Bilibili search, a code review mode, and GitHub issue access.
 
-The default-on **Search first** switch sits in the composer's tool row; hover shows its explanation. It saves the profile owner's `ui-agent-preset.marketFirst` preference for authenticated clients of that profile and affects Creator requests assembled after a successful write. Refused writes keep the accepted value and show an error. Turning it off requests direct creation without a separate skip action.
+The default-on **Search first** switch sits in the composer's tool row; hover shows its explanation. It saves the profile owner's `ui-agent-preset.marketFirst` preference for authenticated clients of that profile and affects Creator requests assembled after a successful write. Refused writes keep the accepted value and show an error. Turning it off displays **Create directly** and skips market discovery and candidate questions; the design preview remains required.
 
 Market search requires the optional [Custom plugin indexes bundle](../../experimental/plugin-market-bundle/README.md) and configured index sources. The switch does not enable the bundle or add sources. When market settings are unavailable or contain no sources, **Configure plugin search** opens Plugins; its help directs the user to Experimental plugins and then Discover. This checks saved configuration, not index reachability or successful search.
 
 | Experience | Current implementation |
 | --- | --- |
-| Explain where a requested UI change belongs and what it affects | A task-specific card marks the proposed page, conversation, composer or right-sidebar region and explains its impact; the model must still verify the extension API |
+| Explain the result before implementation | Every new design shows its expected effect and example usage inline; UI changes also mark the proposed page, conversation, composer or right-sidebar region and impact; the model must verify the extension API |
 | Search before creating, explain matches and gaps, then offer reuse, adaptation or creation | `creator_prepare` searches the configured sources; `creator_choose` presents the model’s comparison and asks for reuse, adaptation or creation; implementation tools stay blocked until an accepted decision |
-| Handle unavailable search, missing sources, failed indexes or no matches | Configuration help plus recorded discovery status and source failures; the decision offers retry, configuration or explicit creation without a successful search |
+| Handle unavailable search, missing sources, failed indexes or no matches | Recorded discovery status and source failures; without compatible candidates, explain the limitation and continue the prepared design without another question |
 | Keep the entry lightweight | Existing conversation and mode picker, four simultaneous examples, no carousel or permanent architecture diagram |
 
-Each preparation searches at most `discoverySourceLimit` sources (default 3), searches `discoveryQueryLimit` independent queries per source (default 3), requests `discoveryResultLimit` results per query (default 5), and offers `discoveryCandidateLimit` compatible default-version candidates (default 3). `query` names the primary capability; `alternatives` supplies short synonyms or bilingual keywords. Results are merged by package name and ranked by reciprocal result position across queries. A zero-result multiword query falls back to individual words within the same query budget. Source details record attempted queries and partial failures. `preparationReadTools` permits read-only inspection before the decision; implementation remains blocked. A successful empty search offers retry or creation; configuration is offered only for missing or failed market access. The optional `indexes` tool argument selects configured sources for a user-requested expansion. The Host-only `creatorPreparation` projection restores the current turn’s gate from tool events; replay does not search or ask again. A new turn or admitted user message requires new preparation. Retry, configuration and skipped choices are normal outcomes that keep implementation blocked; configuration and skipping wait for new user input. Turning Search first off permits direct development without a preparation call or another choice. With Search first on, only compatible candidates require a comparison; missing access and empty searches do not force configuration or a second creation decision. Installation authorization is unchanged.
+`creator_prepare` requires `outcome` and `usage` for an inline design preview regardless of Search first. UI requests also supply `location` and `impact`; tool-only requests explain their conversation entry and output without a layout diagram. A new design initially exposes only the preparation tool; recorded preview success releases inspection tools, while implementation also waits for any required candidate decision. This preview does not ask for approval.
+
+With discovery enabled, each preparation searches at most `discoverySourceLimit` sources (default 3), `discoveryQueryLimit` independent queries per source (default 3), `discoveryResultLimit` results per query (default 5), and offers `discoveryCandidateLimit` compatible candidates (default 3). `query` is the primary keyword; `alternatives` supplies synonyms. Results merge by package name and reciprocal result rank. A zero-result multiword query falls back to words within the same budget; source details retain attempted queries and failures. Optional `indexes` selects configured sources for a requested expansion.
+
+The Host-only `creatorPreparation` projection retains the design and accepted decision across continuation turns and replay. A new `creator_prepare` replaces them; the model must prepare again for materially changed requirements. Retry, configuration and skipped decisions keep implementation blocked while discovery is enabled. Turning discovery off withdraws a waiting market choice and permits the prepared design to continue; a stale chooser cannot reopen it. No compatible candidates or unavailable discovery also permit implementation after the preview. Installation authorization is unchanged. Applied live plugins synchronize automatically; the model checks current capability/UI state rather than asking the user to refresh and report whether an entry appeared.
 
 No session format or core-loop behavior is added by these controls.
 
@@ -95,7 +99,7 @@ The [`creator_prepare` and `creator_choose` tools](../../../docs/tool-catalog.md
 
 #### Token effect
 
-Preparation adds two small tool schemas and bounded discovery output to Creator requests. The model's comparison remains a model request; no token-saving rate is guaranteed.
+The initial request exposes one preview tool schema; the full roster follows a recorded preview. Discovery output stays bounded. The model's comparison remains a model request; no token-saving rate is guaranteed.
 
 #### KV Cache effect
 
@@ -105,7 +109,7 @@ Changing the preference changes the next Creator system prompt and may invalidat
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- Tool execution enforces preparation and a selected path, while query quality, candidate comparisons and API verification remain model work. No default market index is configured.
+- Tool execution requires a design preview and, when discovery returns candidates, an accepted path; detecting materially changed requirements, query quality, candidate comparisons and API verification remain model work. No default market index is configured.
 - Live-index discovery and the real-model candidate chooser have been verified with a notes request. Candidate installation and reuse have not been verified; a configuration hint alone does not establish successful discovery.
 - Proposed regions are schematic, not live application highlighting. Pending choice dialogs use the existing blocking question flow; after interruption, retry preparation. External floating desktop pets, market categories, submission, private or public distribution, review and revenue sharing are outside this package.
 - English and Chinese Creator copy is provided; other locales fall back to English for these controls.

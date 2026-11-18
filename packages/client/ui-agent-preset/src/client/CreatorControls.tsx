@@ -54,7 +54,7 @@ export function CreatorMarketSwitch({
         aria-busy={saving} className={css.switch}
         disabled={saving || preference.status !== 'ready' || !preference.writable}
         onClick={() => { void change() }}>
-        <span aria-hidden className={css.indicator} />{t('creatorMarketLabel')}
+        <span aria-hidden className={css.indicator} />{t(checked ? 'creatorMarketLabel' : 'creatorDirectLabel')}
       </button>
     </Tooltip>
     {checked && market.status !== 'loading' && (market.status !== 'ready' || market.value?.indexes.length === 0) && <Tooltip label={t('creatorMarketUnavailable')} side="top" portal>
