@@ -266,7 +266,8 @@
     "tests/window-drag-inheritance.e2e.ts",
     "tests/complex-history.perf.ts",
     "tests/pwsh-terminal.e2e.ts",
-    "tests/workflow-run.e2e.ts"
+    "tests/workflow-run.e2e.ts",
+    "tests/extension-map.e2e.ts"
   ],
   "references": [
     { "path": "../../packages/experimental/auto-review" },

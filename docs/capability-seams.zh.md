@@ -9,9 +9,11 @@
 
 ```mermaid
 flowchart LR
+  pkg_client_ui_extension_map["client-ui-extension-map"]
+  svc_extensionMap["ctx.extensionMap<br/>Runtime UI placement discovery"]
+  pkg_client_ui_agent_preset["client-ui-agent-preset"]
   pkg_client_ui_decision_review["client-ui-decision-review"]
   svc_decisionReviews["ctx.decisionReviews<br/>Structured human decisions"]
-  pkg_client_ui_agent_preset["client-ui-agent-preset"]
   pkg_action_cards["action-cards"]
   svc_actionCards["ctx.actionCards<br/>Optional action cards"]
   pkg_creation_recommendations["creation-recommendations"]
@@ -359,6 +361,7 @@ flowchart LR
   pkg_client_modules --> svc_clientModules
   pkg_client_product_analytics --> svc_productAnalytics
   pkg_client_ui_decision_review --> svc_decisionReviews
+  pkg_client_ui_extension_map --> svc_extensionMap
   pkg_client_ui_plugin_manager --> svc_pluginRegistryProbe
   pkg_client_ui_session_status --> svc_sessionStatus
   pkg_command_feedback --> svc_sessionFeedback
@@ -541,6 +544,7 @@ flowchart LR
   svc_deepseekLlmApiExtensions --> pkg_llm_deepseek
   svc_directoryPicker --> pkg_api_workspace_controller
   svc_dynamicCordisRunner --> pkg_tool_cordis
+  svc_extensionMap --> pkg_client_ui_agent_preset
   svc_fileReferences --> pkg_api_session_controller
   svc_fileUploads --> pkg_api_session_controller
   svc_forge --> pkg_experimental_client_ui_forge
@@ -674,6 +678,7 @@ flowchart LR
 
 | ctx 键 | 角色 | 所属包 | 实现 | 直接消费方 | 配套插件 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- |
+| `ctx.extensionMap` | `service` | [`client-ui-extension-map`](../packages/client/ui-extension-map) | - | [`client-ui-agent-preset`](../packages/client/ui-agent-preset) | - | 读取已声明展位、公开主题变量和配置 schema，不改动运行时。 |
 | `ctx.decisionReviews` | `service` | [`client-ui-decision-review`](../packages/client/ui-decision-review) | - | [`client-ui-agent-preset`](../packages/client/ui-agent-preset) | - | 在现有提问与回答生命周期上组合候选事实与候选内操作。 |
 | `ctx.actionCards` | `service` | [`action-cards`](../packages/experimental/action-cards) | - | [`creation-recommendations`](../packages/experimental/creation-recommendations), [`client-ui-action-cards`](../packages/experimental/client-ui-action-cards) | - | 负责卡片工具、卡片状态、用户操作和状态通知；各卡片种类注册自己的动作和处理器。 |
 | `ctx.pluginRecommendations` | `service` | [`plugin-recommendations`](../packages/experimental/plugin-recommendations) | - | [`client-ui-plugin-recommendations`](../packages/experimental/client-ui-plugin-recommendations) | - | 读取官方插件卡片的当前目录文本，并在用户点击后通过配置插件管理器启用该插件。 |

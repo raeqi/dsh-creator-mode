@@ -1,0 +1,40 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-extension-map/README.md
+/:
+  en: b6b29608cb89037b
+  zh: f7157a0fd2ae7656
+/deepseek-ai-dsh-client-ui-extension-map:
+  en: 33f464590233c9fb
+  zh: a443efbb83b86b5d
+/deepseek-ai-dsh-client-ui-extension-map/summary:
+  en: 80032a1695ad9a5b
+  zh: 6eb76760e5338048
+/deepseek-ai-dsh-client-ui-extension-map/table-of-contents:
+  en: d4e9596852e22009
+  zh: 8e3c4d9c4d5a6c95
+/deepseek-ai-dsh-client-ui-extension-map/use-this-package:
+  en: fe5ffe8bcac0fd29
+  zh: 0156c2c3d9d4e077
+/deepseek-ai-dsh-client-ui-extension-map/dev-note:
+  en: 4feeb9c005773e50
+  zh: c3fd4f12f5be877e
+/deepseek-ai-dsh-client-ui-extension-map/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-client-ui-extension-map/model-experience/placement-discovery:
+  en: 226e3cb97bcdc850
+  zh: 68347c3d9fab2eb3
+/deepseek-ai-dsh-client-ui-extension-map/model-experience/placement-discovery/what-the-model-sees:
+  en: 4ed0105a73f9b976
+  zh: 194f8c3e94abfac0
+/deepseek-ai-dsh-client-ui-extension-map/model-experience/placement-discovery/token-effect:
+  en: dec822401e80ebcd
+  zh: 7cbecbbaac610538
+/deepseek-ai-dsh-client-ui-extension-map/model-experience/placement-discovery/kv-cache-effect:
+  en: f626be83b359deef
+  zh: 1058049936df1efd
+/deepseek-ai-dsh-client-ui-extension-map/known-limitations-and-deferred-work:
+  en: c715ab01864fd6bf
+  zh: 8bdd89466b33249b

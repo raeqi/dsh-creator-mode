@@ -10,7 +10,7 @@ export interface CreatorPlacement {
   query: string
   outcome?: string
   usage?: string
-  location?: 'page' | 'conversation' | 'composer' | 'right-sidebar'
+  location?: 'page' | 'conversation' | 'composer' | 'right-sidebar' | 'header' | 'left-sidebar' | 'settings' | 'plugins'
   impact?: string
 }
 
@@ -39,7 +39,8 @@ export const creatorPlacementDefinition: ConversationNodeDefinition<{ placement:
     }
     if ('location' in args && 'impact' in args && typeof args.impact === 'string') {
       const location = args.location
-      if (location === 'page' || location === 'conversation' || location === 'composer' || location === 'right-sidebar') {
+      if (location === 'page' || location === 'conversation' || location === 'composer' || location === 'right-sidebar'
+        || location === 'header' || location === 'left-sidebar' || location === 'settings' || location === 'plugins') {
         placement.location = location
         placement.impact = args.impact
       }

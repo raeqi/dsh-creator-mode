@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write README.md
 /dsh-creator-mode:
-  en: fc2782a42249799b
-  zh: 3c14ba25bf2ab64c
+  en: 2c39f4fa0ae71d27
+  zh: 2797e33adceced94
 /dsh-creator-mode/upstream-deepseek-harness:
   en: d241858950e5dd6f
   zh: da1997837445f596

@@ -42,12 +42,16 @@
           },
           "location": {
             "type": "string",
-            "description": "Only for UI requests: proposed region to explain in the conversation.",
+            "description": "Required for visible UI additions. Reads the live extension-map plugin before showing the proposed region. Omit for tool-only, mode or service capabilities without a new visual surface; do not invent a panel.",
             "enum": [
               "page",
               "conversation",
               "composer",
-              "right-sidebar"
+              "right-sidebar",
+              "header",
+              "left-sidebar",
+              "settings",
+              "plugins"
             ]
           },
           "impact": {
@@ -61,6 +65,30 @@
           "query",
           "language"
         ]
+      }
+    },
+    {
+      "name": "ui_extension_map",
+      "description": "Show a read-only, interactive map of UI extension slots actually declared by connected DSH pages, plus public theme tokens and theme configuration fields. Use for visible interface additions or when the user asks where DSH can be extended. It does not install, register UI, search markets, or require a choice. Omit region for an overview; set a region to suggest conservative entry/body locations. Declarations and occupants do not prove that a slot is currently visible; inspect exact slot props before coding. No declaration does not establish impossibility outside the application document.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "description": "Requested part of the window; overview lists all declarations.",
+            "enum": [
+              "overview",
+              "page",
+              "left-sidebar",
+              "header",
+              "conversation",
+              "composer",
+              "right-sidebar",
+              "settings",
+              "plugins"
+            ]
+          }
+        }
       }
     }
   ],

@@ -155,6 +155,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   remoteAccess: 'typert.md',
   userQuestions: 'user-questions.md',
   decisionReviews: 'user-questions.md',
+  extensionMap: 'web-client.md',
   web: 'web.md',
   workflowEngine: 'workflow.md',
   webhookRuntime: 'webhook.md',
@@ -203,6 +204,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   uiRenderer: 'client-side interface-typed browser service — packages/client/ui-renderer/README.md owns the API',
   uiSession: 'client-side Session source adapter — packages/client/ui-session/README.md owns the API',
   uiConversation: 'client-side Conversation registries and assembler — packages/client/ui-conversation/README.md owns the API',
+  uiExtensionMap: 'client-side native-producer registration — packages/client/ui-extension-map/README.md owns the API',
   uiWorkspace: 'client-side Workspace navigation adapter — packages/client/ui-workspace/README.md owns the API',
   settingsSchema: 'client-side schema introspection service — packages/client/ui-settings/README.md owns the API',
   configForms: 'client-side shared entry forms — packages/client/ui-settings/README.md owns the API',
@@ -1055,6 +1057,8 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   DecisionReviewRequest: 'packages/client/ui-decision-review/README.md',
+  ExtensionMap: 'packages/client/ui-extension-map/README.md',
+  ExtensionRegion: 'packages/client/ui-extension-map/README.md',
   ActionCardDecision: 'packages/experimental/action-cards/README.md',
   ActionCardKind: 'packages/experimental/action-cards/README.md',
   ActionCardResult: 'packages/experimental/action-cards/README.md',

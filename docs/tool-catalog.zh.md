@@ -20,7 +20,8 @@
 | 工具包 | 模型可见名称 | 依赖 | 写入／影响 | 随产品发布的别名 | 部署说明 |
 | --- | --- | --- | --- | --- | --- |
 | `@deepseek-ai/dsh-plugin-manager` | `plugin_manager` | `ctx.tools`, `ctx.pluginManager`, `ctx.sandboxPolicy` | `tool/call`, `tool/result`, `user/message` | - | - |
-| `@deepseek-ai/dsh-client-ui-agent-preset` | `creator_choose`, `creator_prepare` | `ctx.tools`, `ctx.sessionProjections`, `ctx.agentPresets`, `ctx.agents`, `ctx.userQuestions (decision)`, `ctx.pluginMarket (optional discovery)` | `tool/call`, `tool/result` | - | - |
+| `@deepseek-ai/dsh-client-ui-extension-map` | `ui_extension_map` | `ctx.tools`, `ctx.cordisInspect` | `tool/call`, `tool/result` | - | - |
+| `@deepseek-ai/dsh-client-ui-agent-preset` | `creator_choose`, `creator_prepare` | `ctx.tools`, `ctx.sessionProjections`, `ctx.agentPresets`, `ctx.agents`, `ctx.extensionMap (UI placement)`, `ctx.userQuestions (decision)`, `ctx.pluginMarket (optional discovery)` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-plugin-market` | `plugin_market` | `ctx.tools`, `ctx.pluginMarket` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-mcp-resources` | `list_mcp_resource_templates`, `list_mcp_resources`, `read_mcp_resource` | `ctx.tools`, `ctx.mcpResources` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-experimental-browser-use-stagehand-native` | `stagehand_act`、`stagehand_extract`、`stagehand_navigate`、`stagehand_observe`、`stagehand_screenshot`、`stagehand_tabs` | `ctx.browserUse`、`ctx.agents`、`ctx.tools`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | - |
@@ -128,6 +129,39 @@
 
 来源： [`packages/boot/plugin-manager/src/tools.ts`](../packages/boot/plugin-manager/src/tools.ts)
 
+<a id="deepseek-aidsh-client-ui-extension-map"></a>
+
+## `@deepseek-ai/dsh-client-ui-extension-map`
+
+### `ui_extension_map`
+
+只读展示已连接 DSH 页面真实声明的界面展位、公开主题变量和配置字段。新增显性界面功能或用户询问可扩展位置时使用；不安装插件、不注册界面、不搜索市场，也不要求选择。省略 region 展示概览，指定区域时建议较稳妥的入口与正文位置。声明和注册项不能证明位置此刻正在显示，实现前需检查精确参数。没有声明不能证明应用文档之外的能力不可能实现。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "region": {
+      "type": "string",
+      "description": "Requested part of the window; overview lists all declarations.",
+      "enum": [
+        "overview",
+        "page",
+        "left-sidebar",
+        "header",
+        "conversation",
+        "composer",
+        "right-sidebar",
+        "settings",
+        "plugins"
+      ]
+    }
+  }
+}
+```
+
+来源： [`packages/client/ui-extension-map/src/index.ts`](../packages/client/ui-extension-map/src/index.ts)
+
 <a id="deepseek-aidsh-client-ui-agent-preset"></a>
 
 ## `@deepseek-ai/dsh-client-ui-agent-preset`
@@ -223,12 +257,16 @@
     },
     "location": {
       "type": "string",
-      "description": "Only for UI requests: proposed region to explain in the conversation.",
+      "description": "Required for visible UI additions. Reads the live extension-map plugin before showing the proposed region. Omit for tool-only, mode or service capabilities without a new visual surface; do not invent a panel.",
       "enum": [
         "page",
         "conversation",
         "composer",
-        "right-sidebar"
+        "right-sidebar",
+        "header",
+        "left-sidebar",
+        "settings",
+        "plugins"
       ]
     },
     "impact": {

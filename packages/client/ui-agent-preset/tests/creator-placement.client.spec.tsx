@@ -12,12 +12,12 @@ import { zh } from '../src/client/locales.ts'
 
 afterEach(cleanup)
 
-it('marks the proposed region and explains the impact without claiming the API is verified', () => {
+it('explains placement impact without fabricating an uninspected region diagram', () => {
   render(<CreatorPlacementCard {...({ node: { data: { query: 'notes', location: 'right-sidebar', impact: '在右侧展示笔记，不遮挡输入框' } },
     t: (key: keyof typeof zh) => zh[key] } as Parameters<typeof CreatorPlacementCard>[0])} />)
   expect(screen.getByRole('region', { name: '将做成什么' })).toBeTruthy()
-  expect(screen.getByText('右侧栏').getAttribute('data-selected')).toBe('true')
-  expect(screen.getByText('消息输入框').getAttribute('data-selected')).toBe('false')
+  expect(screen.queryByText('右侧栏')).toBeNull()
+  expect(screen.queryByText('消息输入框')).toBeNull()
   expect(screen.getByText('在右侧展示笔记，不遮挡输入框')).toBeTruthy()
   expect(screen.getByText('此处展示拟定位置，实现时仍需核实支持的扩展 API')).toBeTruthy()
 })

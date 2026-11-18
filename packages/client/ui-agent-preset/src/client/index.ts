@@ -32,6 +32,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 // Type-only: pulls the Workspace UI navigation service merge (ctx.uiWorkspace).
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@deepseek-ai/dsh-client-ui-extension-map/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import { creatorPlacementDefinition } from './creator-placement.ts'
 import { CreatorPlacementCard } from './CreatorPlacementCard.tsx'
@@ -75,6 +76,9 @@ export const inject = [
  * @param ctx - the browser plugin context.
  */
 export function apply(ctx: ClientContext): void {
+  ctx.inject(['uiExtensionMap'], (child) => {
+    child.effect(() => child.uiExtensionMap.registerProducer('creator_prepare'), 'Creator runtime placement maps')
+  })
   ctx.inject(['uiConversation'], (child) => {
     child.effect(() => child.uiConversation.events.register(creatorPlacementDefinition), 'Creator placement cards')
     child.slots.inject('conversation.chat.node', () => child.slots.register({

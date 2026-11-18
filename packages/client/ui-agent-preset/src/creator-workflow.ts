@@ -7,9 +7,11 @@ import { defineTool, ToolArgsError, ToolContextUnavailableError } from '@deepsee
 import type {} from '@deepseek-ai/dsh-plugin-market'
 import type {} from '@deepseek-ai/dsh-user-questions'
 import type {} from '@deepseek-ai/dsh-client-ui-decision-review'
+import type {} from '@deepseek-ai/dsh-client-ui-extension-map'
 import type { DecisionReviewPresentation } from '@deepseek-ai/dsh-user-questions/types'
 import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
 import type { Config } from './index.ts'
+import { creatorCopy as copy } from './locales.ts'
 
 const TOOL = 'creator_prepare'
 const candidateSchema = z.object({
@@ -66,27 +68,6 @@ export const preparationProjection: ProjectionDefinition<'creatorPreparation', P
       default: return state
     }
   },
-}
-
-const copy = {
-  en: { revise: 'Revise requirements', revisePending: 'The user supplied new requirements. Call creator_prepare again using these requirements, then present an updated comparison; do not implement or install.', noDecision: 'Decide later', coverage: 'What it covers', gaps: 'Gaps and unknowns', unverified: 'Not verified; inspect before implementation', continue: 'Continue with this option', adaptCard: 'Adapt this option', reviewTitle: 'Which direction fits your needs?', notice: 'Choosing a direction does not install plugins', locations: { page: 'Application page', conversation: 'Conversation view', composer: 'Message composer', 'right-sidebar': 'Right sidebar' }, compatible: 'Compatible default version', noCandidates: 'No compatible candidates are available in this search. Retry with different keywords or choose creation; installation remains separately authorized.', noCandidateQuestion: 'There are no candidates to compare. How would you like to continue?', title: 'Choose how to continue', create: 'Create a new plugin', retry: 'Retry discovery', configure: 'Configure market first',
-    use: 'Use', adapt: 'Adapt', absent: 'Market search is unavailable.', empty: 'No index sources are configured.',
-    direct: 'Search first is off; market discovery was not performed.', incompatible: 'Matches were found, but none has a compatible default version.', none: 'No matching plugins in the successfully searched sources.',
-    unknown: 'A source could not be searched.', location: 'Proposed interface location', warning: 'Proposed placement; verify the actual extension API before implementation.',
-    choice: 'Choose reuse, adaptation, or creation. Installation still requires separate authorization.', source: 'Sources', omitted: 'Sources not searched',
-    skipped: 'No path was selected. Do not repeat the question or start implementation; respond to any custom instructions and wait for the next user instruction.',
-    retryPending: 'The user requested another search. Call creator_prepare again with improved keywords; do not reuse the old discovery as a new success.',
-    configurePending: 'The user chose market configuration. Explain Plugins → Experimental plugins → Custom plugin indexes, then Discover sources, and stop until configuration is complete. Do not ask this decision again.',
-    pending: 'Preparation is incomplete. Retry creator_prepare after configuring the market or clarify the request.' },
-  zh: { revise: '补充需求并重新准备', revisePending: '用户补充了需求，请依据补充内容重新调用 creator_prepare，随后展示更新后的候选；不要开始实现或安装', noDecision: '暂不决定', coverage: '能满足什么', gaps: '缺口与待核实', unverified: '尚未核实，实施前需要检查', continue: '基于这个方案继续', adaptCard: '改造这个方案', reviewTitle: '哪个方案更适合你的需求？', notice: '选定方向不会安装插件', locations: { page: '应用页面', conversation: '对话视图', composer: '消息输入框', 'right-sidebar': '右侧栏' }, compatible: '兼容的默认版本', noCandidates: '本轮检索暂无可比较的兼容候选。可换关键词重新检索，或选择新建；安装仍需单独授权。', noCandidateQuestion: '本次暂无可比较的候选，接下来怎么做？', title: '选择接下来的方式', create: '创建新插件', retry: '重新检索', configure: '先配置市场',
-    use: '使用', adapt: '改造', absent: '市场搜索工具不可用', empty: '尚未配置索引源',
-    direct: '优先检索已关闭，本次未搜索市场', incompatible: '找到了匹配条目，但没有可用的兼容默认版本', none: '已成功搜索的来源中没有匹配插件',
-    unknown: '有来源未能完成搜索', location: '拟放置的界面位置', warning: '这是拟定位置，实现前仍需核实真实扩展 API',
-    choice: '请选择复用、改造或新建；安装仍需单独授权', source: '来源', omitted: '未搜索的来源',
-    skipped: '用户未选择路径，不要重复提问或开始实现；请回应补充说明并等待用户下一步指示',
-    retryPending: '用户请求重新检索，请改进关键词后再次调用 creator_prepare，不要把旧结果当成新搜索成功',
-    configurePending: '用户选择先配置市场，请说明“插件 → 实验性插件 → 自定义插件索引”和“发现”索引源的入口，并在配置完成前停止，不要重复询问该选择',
-    pending: '准备尚未完成，请配置市场后重新调用 creator_prepare，或进一步确认需求' },
 }
 
 /** Cancel this consumer without cancelling the market service's shared index fetch. */
@@ -152,10 +133,20 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
       alternatives: { type: 'array', items: { type: 'string' }, description: `Alternative short queries, including synonyms and the user’s language, e.g. 笔记 and 便签. Search independently and merge results; at most ${config.discoveryQueryLimit - 1} alternatives.` },
       indexes: { type: 'array', items: { type: 'string' }, description: `Optional configured index URLs to search, at most ${config.discoverySourceLimit}. Omit for the first configured sources. Use omitted sources only when the user asks to expand discovery.` },
       language: { type: 'string', enum: ['en', 'zh'], required: true, description: 'Language of the user-facing decision.' },
-      location: { type: 'string', enum: ['page', 'conversation', 'composer', 'right-sidebar'], description: 'Only for UI requests: proposed region to explain in the conversation.' },
+      location: { type: 'string', enum: ['page', 'conversation', 'composer', 'right-sidebar', 'header', 'left-sidebar', 'settings', 'plugins'], description: 'Required for visible UI additions. Reads the live extension-map plugin before showing the proposed region. Omit for tool-only, mode or service capabilities without a new visual surface; do not invent a panel.' },
       impact: { type: 'string', description: 'For UI requests, explain the user-visible change and affected neighbors in the user’s language.' },
     },
-    output: { schema: { type: 'string' }, render: (_args, value) => [{ type: 'text', text: value }] },
+    output: { schema: { type: 'string' }, render: (_args, value) => {
+      const parsed = JSON.parse(value) as { extensionMap?: { slots: { recommended: boolean }[] }; [key: string]: unknown }
+      if (parsed.extensionMap === undefined) return [{ type: 'text', text: value }]
+      const { extensionMap, ...preparation } = parsed
+      return [{ type: 'text', text: JSON.stringify({ ...preparation, uiPlacement: { ...extensionMap,
+        slots: extensionMap.slots.filter(slot => slot.recommended), slotCount: extensionMap.slots.length,
+        guidance: 'Full inventory is displayed in the interactive map. Inspect the exact recommended Slots roots for props and owner APIs before writing code. A declaration is not proof of current visibility.' } }) }]
+    }, presentationMeta: (_args, value) => {
+      const parsed = JSON.parse(value) as { extensionMap?: import('@deepseek-ai/dsh-util-values').JsonValue }
+      return parsed.extensionMap === undefined ? {} : { extensionMap: parsed.extensionMap }
+    } },
     async execute(args, exec) {
       const signal = AbortSignal.any([exec.signal, lifetime.signal])
       signal.throwIfAborted()
@@ -168,6 +159,11 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
         throw new ToolArgsError([`alternatives must contain at most ${config.discoveryQueryLimit - 1} nonempty queries`])
       }
       const queries = [...new Set([args.query.trim(), ...alternatives.map(term => term.trim())])]
+      const mapper = ctx.get('extensionMap')
+      if (args.location !== undefined && mapper === undefined) {
+        throw new ToolContextUnavailableError('The UI extension map plugin is required for interface placement. Enable ui-extension-map and reconnect a DSH page; no UI support has been verified.')
+      }
+      const extensionMap = args.location === undefined ? undefined : await mapper?.inspect(args.location, { ...exec, signal })
       const t = copy[args.language]
       const marketFirst = config.marketFirst.get()
       const market = ctx.get('pluginMarket')
@@ -235,6 +231,7 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
         : status === 'partial-or-failed' ? t.unknown : status === 'no-matches' ? t.none : status === 'no-compatible-matches' ? t.incompatible : t.choice
       return JSON.stringify({ query: args.query, queries, language: args.language, status, reason, sources, omitted, candidates: shown,
         preview: { outcome: args.outcome, usage: args.usage }, nextAction: marketFirst && shown.length > 0 ? 'choose' : 'implement',
+        ...extensionMap === undefined ? {} : { extensionMap },
         ...args.location === undefined ? {} : { location: args.location, impact: args.impact ?? '' } })
     },
     presentCall: args => ({ card: 'generic', title: args.language === 'zh' ? '准备创造方案' : 'Prepare Creator request', kind: 'read', rawInput: args }),
@@ -334,19 +331,24 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
     presentCall: () => ({ card: 'generic', title: 'Choose Creator path', kind: 'read' }),
   }), { when: ({ agent }) => creator(agent.session) })
 
-  const previews = new Map<Agent, () => void>()
+  const previews = new Map<Agent, { dispose: () => void; hasMap: boolean }>()
   const refreshPreview = (agent: Agent): void => {
     const required = creator(agent.session) && projection.stateOf(agent.session).discovery?.preview === undefined
     if (required) {
-      if (!previews.has(agent)) previews.set(agent, agent.ctx.tools.restrict({ allow: [TOOL] }))
+      const hasMap = ctx.tools.schemas().some(tool => tool.name === 'ui_extension_map')
+      const current = previews.get(agent)
+      if (current === undefined || current.hasMap !== hasMap) {
+        current?.dispose()
+        previews.set(agent, { hasMap, dispose: agent.ctx.tools.restrict({ allow: [TOOL, ...hasMap ? ['ui_extension_map'] : []] }) })
+      }
     } else {
-      previews.get(agent)?.()
+      previews.get(agent)?.dispose()
       previews.delete(agent)
     }
   }
   ctx.on('agent/created', ({ agent }) => { refreshPreview(agent) }, { global: true })
   ctx.on('agent/disposed', ({ agent }) => {
-    previews.get(agent)?.()
+    previews.get(agent)?.dispose()
     previews.delete(agent)
   }, { global: true })
   ctx.on('session/event', (session, event) => {
@@ -356,7 +358,7 @@ export async function registerCreatorWorkflow(ctx: Context, config: Config): Pro
     if (agent !== undefined) refreshPreview(agent)
   })
   ctx.effect(() => () => {
-    for (const dispose of previews.values()) dispose()
+    for (const preview of previews.values()) preview.dispose()
     previews.clear()
   }, 'Creator preview tool availability')
   for (const agent of ctx.agents.list()) refreshPreview(agent)

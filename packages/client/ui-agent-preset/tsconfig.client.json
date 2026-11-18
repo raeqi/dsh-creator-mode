@@ -65,11 +65,15 @@
     },
     {
       "path": "../ui-chat/tsconfig.client.json"
+    },
+    {
+      "path": "../ui-extension-map/tsconfig.client.json"
     }
   ],
   "exclude": [
     "src/index.ts",
     "src/creator-policy.ts",
-    "src/creator-workflow.ts"
+    "src/creator-workflow.ts",
+    "src/locales.ts"
   ]
 }

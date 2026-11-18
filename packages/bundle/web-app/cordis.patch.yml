@@ -495,6 +495,9 @@
     - id: ui-plan
       name: '@deepseek-ai/dsh-client-ui-plan'
 
+    - id: ui-extension-map
+      name: '@deepseek-ai/dsh-client-ui-extension-map'
+
     - id: ui-decision-review
       name: '@deepseek-ai/dsh-client-ui-decision-review'
     - id: ui-user-questions

@@ -10,6 +10,7 @@
   "include": [
     "snapshots/session/headless.snapshot.ts",
     "apps/web/tests/decision-review.e2e.ts",
+    "apps/web/tests/extension-map.e2e.ts",
     "apps/web/tests/creator-controls.e2e.ts",
     "apps/web/tests/creator-policy.e2e.ts",
     "apps/web/tests/home-whale.e2e.ts",
@@ -320,6 +321,7 @@
     { "path": "./packages/client/ui-conversation/tsconfig.host.json" },
     { "path": "./packages/client/ui-agent-preset/tsconfig.host.json" },
     { "path": "./packages/client/ui-decision-review/tsconfig.host.json" },
+    { "path": "./packages/client/ui-extension-map/tsconfig.host.json" },
     { "path": "./packages/client/ui-settings/tsconfig.host.json" },
     { "path": "./packages/client/ui-settings-general/tsconfig.host.json" },
 

@@ -16,7 +16,8 @@ This table connects model-visible tool names to the plugin package and service s
 | Tool package | Model-visible names | Requires | Writes / affects | Shipped aliases | Deployment note |
 | --- | --- | --- | --- | --- | --- |
 | `@deepseek-ai/dsh-plugin-manager` | `plugin_manager` | `ctx.tools`, `ctx.pluginManager`, `ctx.sandboxPolicy` | `tool/call`, `tool/result`, `user/message` | - | - |
-| `@deepseek-ai/dsh-client-ui-agent-preset` | `creator_choose`, `creator_prepare` | `ctx.tools`, `ctx.sessionProjections`, `ctx.agentPresets`, `ctx.agents`, `ctx.userQuestions (decision)`, `ctx.pluginMarket (optional discovery)` | `tool/call`, `tool/result` | - | - |
+| `@deepseek-ai/dsh-client-ui-extension-map` | `ui_extension_map` | `ctx.tools`, `ctx.cordisInspect` | `tool/call`, `tool/result` | - | - |
+| `@deepseek-ai/dsh-client-ui-agent-preset` | `creator_choose`, `creator_prepare` | `ctx.tools`, `ctx.sessionProjections`, `ctx.agentPresets`, `ctx.agents`, `ctx.extensionMap (UI placement)`, `ctx.userQuestions (decision)`, `ctx.pluginMarket (optional discovery)` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-plugin-market` | `plugin_market` | `ctx.tools`, `ctx.pluginMarket` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-mcp-resources` | `list_mcp_resource_templates`, `list_mcp_resources`, `read_mcp_resource` | `ctx.tools`, `ctx.mcpResources` | `tool/call`, `tool/result` | - | - |
 | `@deepseek-ai/dsh-experimental-browser-use-stagehand-native` | `stagehand_act`, `stagehand_extract`, `stagehand_navigate`, `stagehand_observe`, `stagehand_screenshot`, `stagehand_tabs` | `ctx.browserUse`, `ctx.agents`, `ctx.tools`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | - |
@@ -124,6 +125,39 @@ List plugins or bundles in the current profile, enable or disable them, install 
 
 Source: [`packages/boot/plugin-manager/src/tools.ts`](../packages/boot/plugin-manager/src/tools.ts)
 
+<a id="deepseek-aidsh-client-ui-extension-map"></a>
+
+## `@deepseek-ai/dsh-client-ui-extension-map`
+
+### `ui_extension_map`
+
+Show a read-only, interactive map of UI extension slots actually declared by connected DSH pages, plus public theme tokens and theme configuration fields. Use for visible interface additions or when the user asks where DSH can be extended. It does not install, register UI, search markets, or require a choice. Omit region for an overview; set a region to suggest conservative entry/body locations. Declarations and occupants do not prove that a slot is currently visible; inspect exact slot props before coding. No declaration does not establish impossibility outside the application document.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "region": {
+      "type": "string",
+      "description": "Requested part of the window; overview lists all declarations.",
+      "enum": [
+        "overview",
+        "page",
+        "left-sidebar",
+        "header",
+        "conversation",
+        "composer",
+        "right-sidebar",
+        "settings",
+        "plugins"
+      ]
+    }
+  }
+}
+```
+
+Source: [`packages/client/ui-extension-map/src/index.ts`](../packages/client/ui-extension-map/src/index.ts)
+
 <a id="deepseek-aidsh-client-ui-agent-preset"></a>
 
 ## `@deepseek-ai/dsh-client-ui-agent-preset`
@@ -219,12 +253,16 @@ Show an inline design preview before implementing a new Creator design: expected
     },
     "location": {
       "type": "string",
-      "description": "Only for UI requests: proposed region to explain in the conversation.",
+      "description": "Required for visible UI additions. Reads the live extension-map plugin before showing the proposed region. Omit for tool-only, mode or service capabilities without a new visual surface; do not invent a panel.",
       "enum": [
         "page",
         "conversation",
         "composer",
-        "right-sidebar"
+        "right-sidebar",
+        "header",
+        "left-sidebar",
+        "settings",
+        "plugins"
       ]
     },
     "impact": {

@@ -1190,6 +1190,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'extensionMap',
+    summary: 'Reads the same provider registry and methods used by cordis_inspect_list/query.',
+    description: 'Reads the same provider registry and methods used by cordis_inspect_list/query.',
+    methods: [
+      {
+        signature: 'async inspect(region: ExtensionRegion, exec: ToolExecution): Promise<ExtensionMap>',
+        description: 'Capture declared Slots and public Theme/Config capabilities without running or installing a plugin.',
+        parameters: [{ name: 'region', description: 'Requested region, or overview for the whole document.' }, { name: 'exec', description: 'Agent scope and cancellation lifetime of the recorded tool call.' }],
+        returns: 'A snapshot with source failures and unknown occupants preserved explicitly.',
+      },
+    ],
+  },
+  {
     key: 'fileReferences',
     summary: 'Host capability for cancellable file-reference discovery.',
     description: 'Host capability for cancellable file-reference discovery.',
@@ -6850,6 +6863,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'EveryScheduleRecord',
     declaration: 'export interface EveryScheduleRecord {\n    readonly id: ScheduleId;\n    readonly kind: \'every\';\n    readonly title: string;\n    readonly prompt: string;\n    readonly everySeconds: number;\n    readonly scheduledAt: string;\n}',
+  },
+  {
+    name: 'ExtensionMap',
+    declaration: 'export type ExtensionMap = z.infer<typeof mapSchema>;',
+  },
+  {
+    name: 'ExtensionRegion',
+    declaration: 'export type ExtensionRegion = z.infer<typeof regionSchema>;',
   },
   {
     name: 'FeedbackCategory',

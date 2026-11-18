@@ -107,6 +107,8 @@ const GROUP_ORDER = [
 ]
 
 const SERVICE_ROLES: ServiceRole[] = [
+  { key: 'extensionMap', pkg: 'client-ui-extension-map', title: 'Runtime UI placement discovery', mode: 'service',
+    consumers: ['client-ui-agent-preset'], note: 'Reads declared Slots, public theme tokens and configuration schemas without changing the runtime.' },
   { key: 'decisionReviews', pkg: 'client-ui-decision-review', title: 'Structured human decisions', mode: 'service',
     consumers: ['client-ui-agent-preset'], note: 'Groups candidate facts and contextual actions over the existing user-question answer lifecycle.' },
   {

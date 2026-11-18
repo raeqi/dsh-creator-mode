@@ -30,7 +30,7 @@ export const Config = z.object({ marketFirst: z.boolean().default(true).volatile
   discoveryQueryLimit: z.number().step(1).min(1).max(6).default(3),
   discoveryResultLimit: z.number().step(1).min(1).max(10).default(5),
   discoveryCandidateLimit: z.number().step(1).min(1).max(3).default(3),
-  preparationReadTools: z.array(z.string()).default(['read', 'glob', 'grep', 'read_image', 'web_search', 'web_fetch', 'skill', 'cordis_inspect_list', 'cordis_inspect_query', 'ask_user_question', 'plugin_market']) })
+  preparationReadTools: z.array(z.string()).default(['read', 'glob', 'grep', 'read_image', 'web_search', 'web_fetch', 'skill', 'cordis_inspect_list', 'cordis_inspect_query', 'ui_extension_map', 'ask_user_question', 'plugin_market']) })
 
 /**
  * Mount profile preferences, preparation tools and logged guidance; ordinary presets receive no Creator behavior.

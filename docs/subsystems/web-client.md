@@ -127,6 +127,26 @@ Use the four detailed references according to the extension being added:
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
 
+<a id="ctxextensionmap--extensionmapservice"></a>
+
+### `ctx.extensionMap` — `ExtensionMapService`
+
+Reads the same provider registry and methods used by cordis_inspect_list/query.
+
+```ts cordis-catalog
+/**
+ * Capture declared Slots and public Theme/Config capabilities without running or installing a plugin.
+ * @param region - Requested region, or overview for the whole document.
+ * @param exec - Agent scope and cancellation lifetime of the recorded tool call.
+ * @returns A snapshot with source failures and unknown occupants preserved explicitly.
+ */
+async inspect(region: ExtensionRegion, exec: ToolExecution): Promise<ExtensionMap>
+```
+
+Types: [ToolExecution](tools.md)
+
+Source: [`packages/client/ui-extension-map/src/index.ts`](../../packages/client/ui-extension-map/src/index.ts)
+
 <a id="ctxsessionstatus--sessionstatusservice"></a>
 
 ### `ctx.sessionStatus` — `SessionStatusService`

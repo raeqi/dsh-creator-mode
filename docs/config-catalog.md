@@ -634,6 +634,25 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-agent-preset -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-extension-map -->
+<a id="deepseek-aidsh-client-ui-extension-map"></a>
+
+## `@deepseek-ai/dsh-client-ui-extension-map`
+
+- `inject`: `cordisInspect` · `tools`
+- `source`: [`packages/client/ui-extension-map/src/index.ts:21`](../packages/client/ui-extension-map/src/index.ts)
+
+```ts config-catalog
+/** Profile bounds on inventory size and detailed inspections. */
+export interface Config {
+  /** Maximum retained slot declarations, with omissions reported explicitly. */
+  slotLimit: number
+  /** Maximum suggestions and exact-root occupancy queries. */
+  recommendationLimit: number
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-extension-map -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-plugin-manager -->
 <a id="deepseek-aidsh-client-ui-plugin-manager"></a>
 

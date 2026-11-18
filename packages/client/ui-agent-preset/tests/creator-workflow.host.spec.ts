@@ -33,6 +33,17 @@ async function fixture(marketFirst = true, preset = 'cordis') {
       return Promise.resolve({ answers: [{ id: 'creator-path', selected: selected === undefined ? [] : [selected], ...custom === undefined ? {} : { custom } }] })
     }
   }
+  const inspectedRegions: string[] = []
+  class Maps extends Service {
+    constructor(inner: Context) { super(inner, 'extensionMap') }
+    inspect(region: string) {
+      inspectedRegions.push(region)
+      return Promise.resolve({ version: 1, region, slots: [{ name: 'sidebar.right.pane.tab', kind: 'keyed',
+        scope: 'session', purpose: 'Panel body', risk: 'none', region: 'right-sidebar', recommended: true, occupants: [] }],
+      factories: 0, omitted: 0, theme: [], config: [], issues: [] })
+    }
+  }
+  await ctx.plugin(Maps)
   await ctx.plugin(Presets)
   await ctx.plugin(Questions)
   const workflow = await ctx.plugin({ ...host, apply: (inner: Context, config: host.Config) => {
@@ -62,7 +73,7 @@ async function fixture(marketFirst = true, preset = 'cordis') {
       message: createToolResultMessage({ callId, content: result.content, isError: result.isError }) }, { surfaceOp: 'append' })
     return result
   }
-  return { ctx, workflow, agent, run, requests, approvalCalls,
+  return { ctx, workflow, agent, run, requests, approvalCalls, inspectedRegions,
     setPreset: (value: string) => { preset = value; agent.session.append('agent-preset/selected', { agentPreset: value }) },
     setMarketFirst: (value: boolean) => { marketFirst = value; workflow.ctx.emit('loader/volatile-update', [['marketFirst']]) }, nextTurn: () => {
       agent.session.append('turn/end', { turn, reason: { kind: 'completed' } })
@@ -343,6 +354,9 @@ it.each([
   const preview = await direct.run('creator_prepare', { ...design, query, language: 'zh', ...location === undefined ? {} : { location, impact: '在右侧展示笔记' } })
   expect(preview.isError).toBe(false)
   expect(preview.content.some(part => part.type === 'text' && part.text.includes('"preview"'))).toBe(true)
+  expect(direct.inspectedRegions).toEqual(location === undefined ? [] : [location])
+  if (location === undefined) expect(preview.meta).toEqual({})
+  else expect(preview.meta).toMatchObject({ extensionMap: { region: location } })
   expect(await direct.run('write_test')).toMatchObject({ isError: false })
   expect(direct.requests).toEqual([])
   const searched = await fixture()

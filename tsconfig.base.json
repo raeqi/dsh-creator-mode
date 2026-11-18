@@ -338,6 +338,8 @@
       "@deepseek-ai/dsh-client-ui-model-selection": ["./packages/client/ui-model-selection/src"],
       "@deepseek-ai/dsh-client-ui-goal": ["./packages/client/ui-goal/src"],
       "@deepseek-ai/dsh-client-ui-message-feedback": ["./packages/client/ui-message-feedback/src"],
+      "@deepseek-ai/dsh-client-ui-extension-map": ["./packages/client/ui-extension-map/src"],
+      "@deepseek-ai/dsh-client-ui-extension-map/client": ["./packages/client/ui-extension-map/src/client/index.ts"],
       "@deepseek-ai/dsh-client-ui-decision-review": ["./packages/client/ui-decision-review/src"],
       "@deepseek-ai/dsh-client-ui-decision-review/client": ["./packages/client/ui-decision-review/src/client/index.ts"],
       "@deepseek-ai/dsh-client-ui-agent-preset": ["./packages/client/ui-agent-preset/src"],

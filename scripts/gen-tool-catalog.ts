@@ -92,6 +92,7 @@ import * as ToolRalph from '@deepseek-ai/dsh-tool-ralph'
 import * as ToolWorkflow from '@deepseek-ai/dsh-tool-workflow'
 import * as ToolWorkspaceDependencies from '@deepseek-ai/dsh-tool-workspace-dependencies'
 import * as CreatorControls from '../packages/client/ui-agent-preset/src/index.ts'
+import * as ExtensionMap from '../packages/client/ui-extension-map/src/index.ts'
 import { githubSlug } from './verify-md-links.ts'
 import { brandString } from '@deepseek-ai/dsh-brand'
 
@@ -99,6 +100,11 @@ import { brandString } from '@deepseek-ai/dsh-brand'
 class CatalogCreatorPresets extends Service {
   constructor(ctx: Context) { super(ctx, 'agentPresets') }
   presetForSession(): string { return 'cordis' }
+}
+
+/** Schema harvest never queries connected pages or configuration. */
+class CatalogExtensionInspector extends Service {
+  constructor(ctx: Context) { super(ctx, 'cordisInspect') }
 }
 
 /** Attachment seam marker that makes the attachments-conditional `read_image` schema harvestable. */
@@ -229,10 +235,21 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
+    pkg: '@deepseek-ai/dsh-client-ui-extension-map',
+    dir: 'ui-extension-map',
+    source: 'packages/client/ui-extension-map/src/index.ts',
+    requires: ['ctx.tools', 'ctx.cordisInspect'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(CatalogExtensionInspector)
+      await ctx.plugin(ExtensionMap)
+    },
+  },
+  {
     pkg: '@deepseek-ai/dsh-client-ui-agent-preset',
     dir: 'ui-agent-preset',
     source: 'packages/client/ui-agent-preset/src/creator-workflow.ts',
-    requires: ['ctx.tools', 'ctx.sessionProjections', 'ctx.agentPresets', 'ctx.agents', 'ctx.userQuestions (decision)', 'ctx.pluginMarket (optional discovery)'],
+    requires: ['ctx.tools', 'ctx.sessionProjections', 'ctx.agentPresets', 'ctx.agents', 'ctx.extensionMap (UI placement)', 'ctx.userQuestions (decision)', 'ctx.pluginMarket (optional discovery)'],
     writes: ['tool/call', 'tool/result'],
     async mount(ctx) {
       await ctx.plugin(CatalogCreatorPresets)

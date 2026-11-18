@@ -7,9 +7,11 @@ A service can be a core spine service, a swappable capability seam, a bundle/com
 
 ```mermaid
 flowchart LR
+  pkg_client_ui_extension_map["client-ui-extension-map"]
+  svc_extensionMap["ctx.extensionMap<br/>Runtime UI placement discovery"]
+  pkg_client_ui_agent_preset["client-ui-agent-preset"]
   pkg_client_ui_decision_review["client-ui-decision-review"]
   svc_decisionReviews["ctx.decisionReviews<br/>Structured human decisions"]
-  pkg_client_ui_agent_preset["client-ui-agent-preset"]
   pkg_action_cards["action-cards"]
   svc_actionCards["ctx.actionCards<br/>Optional action cards"]
   pkg_creation_recommendations["creation-recommendations"]
@@ -357,6 +359,7 @@ flowchart LR
   pkg_client_modules --> svc_clientModules
   pkg_client_product_analytics --> svc_productAnalytics
   pkg_client_ui_decision_review --> svc_decisionReviews
+  pkg_client_ui_extension_map --> svc_extensionMap
   pkg_client_ui_plugin_manager --> svc_pluginRegistryProbe
   pkg_client_ui_session_status --> svc_sessionStatus
   pkg_command_feedback --> svc_sessionFeedback
@@ -539,6 +542,7 @@ flowchart LR
   svc_deepseekLlmApiExtensions --> pkg_llm_deepseek
   svc_directoryPicker --> pkg_api_workspace_controller
   svc_dynamicCordisRunner --> pkg_tool_cordis
+  svc_extensionMap --> pkg_client_ui_agent_preset
   svc_fileReferences --> pkg_api_session_controller
   svc_fileUploads --> pkg_api_session_controller
   svc_forge --> pkg_experimental_client_ui_forge
@@ -672,6 +676,7 @@ flowchart LR
 
 | ctx key | Role | Owner | Implementations | Direct consumers | Companion plugins | Note |
 | --- | --- | --- | --- | --- | --- | --- |
+| `ctx.extensionMap` | `service` | [`client-ui-extension-map`](../packages/client/ui-extension-map) | - | [`client-ui-agent-preset`](../packages/client/ui-agent-preset) | - | Reads declared Slots, public theme tokens and configuration schemas without changing the runtime. |
 | `ctx.decisionReviews` | `service` | [`client-ui-decision-review`](../packages/client/ui-decision-review) | - | [`client-ui-agent-preset`](../packages/client/ui-agent-preset) | - | Groups candidate facts and contextual actions over the existing user-question answer lifecycle. |
 | `ctx.actionCards` | `service` | [`action-cards`](../packages/experimental/action-cards) | - | [`creation-recommendations`](../packages/experimental/creation-recommendations), [`client-ui-action-cards`](../packages/experimental/client-ui-action-cards) | - | Owns the card tool, card state, user actions and status notices; card kinds register their actions and handlers. |
 | `ctx.pluginRecommendations` | `service` | [`plugin-recommendations`](../packages/experimental/plugin-recommendations) | - | [`client-ui-plugin-recommendations`](../packages/experimental/client-ui-plugin-recommendations) | - | Reads the current catalog text of an official plugin card and enables the plugin through the profile plugin manager after a click. |
